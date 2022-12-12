@@ -81,7 +81,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         log.error(ex.getMessage());
         ApiErrorModel error = new ApiErrorModel(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST,
+                ex.getStatus(),
                 ex.getReason()
         );
         return ResponseEntityBuilder.build(error);
