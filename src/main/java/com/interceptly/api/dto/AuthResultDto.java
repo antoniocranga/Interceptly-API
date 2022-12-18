@@ -1,10 +1,9 @@
 package com.interceptly.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.interceptly.api.dao.UserDao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
@@ -13,8 +12,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthResultDto {
 
+    @JsonProperty("user")
     private Optional<UserDao> userDao;
-
     @NotNull
     private final String jwt;
 }

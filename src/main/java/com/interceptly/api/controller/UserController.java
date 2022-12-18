@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @RestController
@@ -30,7 +31,7 @@ public class UserController {
     PermissionRepository permissionRepository;
 
     @GetMapping
-    public Optional<UserDao> getUser(JwtAuthenticationToken authentication) {
+    public Optional<UserDao> getUser(@NotNull JwtAuthenticationToken authentication) {
         Integer userId = Integer.parseInt(authentication.getTokenAttributes().get("user_id").toString());
         return userRepository.findById(userId);
     }

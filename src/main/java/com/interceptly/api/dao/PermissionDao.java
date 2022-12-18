@@ -1,36 +1,42 @@
 package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.util.enums.PermissionEnum;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.apache.catalina.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Entity
 @Data
 @EqualsAndHashCode
 @NoArgsConstructor
-@Table(name="permissions")
-public class PermissionDao{
+@Builder
+@AllArgsConstructor
+@Table(name = "permissions")
+public class PermissionDao implements Serializable {
 
-    @Id
-    @Column(name="user_id")
+    @EmbeddedId
+    @JsonIgnore
+    UserProjectComposite id;
+
+    //    @ManyToOne
+//    @MapsId("userId")
+//    @JoinColumn(name = "user_id")
+//    @JsonIgnore
+//    private UserDao user;
+    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     @JsonIgnore
     private Integer userId;
-
-//    @ManyToOne
-//    @JoinColumn(name="user_id", nullable = false, insertable = false, updatable = false)
-//    @JsonBackReference(value = "user-permissions")
-//    private UserDao user;
-
-    @OneToOne
-    @JoinColumn(name="project_id", nullable = false, insertable = false, updatable = false)
+    @ManyToOne
+    @MapsId("projectId")
+    @JoinColumn(name = "project_id", nullable = false, insertable = false, updatable = false)
     private ProjectDao project;
 
-    @Column(name= "permission")
+    @Column(name = "permission", nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    private PermissionEnum permission;
-
+    PermissionEnum permission;
 }

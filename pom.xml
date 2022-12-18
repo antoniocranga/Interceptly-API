@@ -11,8 +11,9 @@
     <groupId>com.interceptly</groupId>
     <artifactId>api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>api</name>
-    <description>api</description>
+    <packaging>jar</packaging>
+    <name>Interceptly.io API</name>
+    <description>The official API for Interceptly.io</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -89,7 +90,15 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
+                    <executable>true</executable>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

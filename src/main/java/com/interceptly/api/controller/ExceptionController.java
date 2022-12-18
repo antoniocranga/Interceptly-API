@@ -10,13 +10,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,20 @@ import java.util.NoSuchElementException;
 @ControllerAdvice
 @Slf4j
 public class ExceptionController extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ResponseEntity<Object> onConstraintValidationException(ConstraintViolationException ex){
+        List<String> errors = new ArrayList<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()){
+            errors.add(violation.getPropertyPath().toString() + " " + violation.getMessage());
+        }
+        ApiErrorModel error = new ApiErrorModel(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST,
+                errors.toString()
+        );
+        return ResponseEntityBuilder.build(error);
+    }
 
     @Override
     public ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -92,7 +111,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         ApiErrorModel error = new ApiErrorModel(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST,
-                "Email already exists!"
+                ex.getMessage()
         );
         return ResponseEntityBuilder.build(error);
     }
