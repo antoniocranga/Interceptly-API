@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +33,6 @@ public class IssueDao extends BaseEntity{
     private String description;
 
     @NonNull
-    @Size(max = 15)
     @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'",length = 15)
     @Enumerated(EnumType.STRING)
     @ColumnDefault("ACTIVE")
@@ -52,8 +52,18 @@ public class IssueDao extends BaseEntity{
     @JsonIgnore
     private Integer projectId;
 
+    @NonNull
+    @Column(name = "is_bookmarked", nullable = false)
+    private Boolean isBookmarked;
+
     @Formula("(select count(e.issue_id) from events e where e.issue_id = id)")
     private Integer eventsCount;
+
+    @Formula("(select max(e.created_at) from events e where e.issue_id = id)")
+    private LocalDateTime lastSeen;
+
+    @Formula("(select min(e.created_at) from events e where e.issue_id = id)")
+    private LocalDateTime firstSeen;
 
     @Transient
     private List<EventDao> events;

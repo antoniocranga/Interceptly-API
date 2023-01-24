@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  mysqldb:
+    container_name: mysqldb
+    restart: unless-stopped
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
+    volumes:
+      - mysqldb:/var/lib/mysql
+    expose:
+      - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
+    healthcheck:
+      test: "mysql -u ${MYSQL_USER} -p$${MYSQL_PASSWORD} -e \"show databases;\""
+  app:
+    container_name: app
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${SPRING_LOCAL_PORT}:${SPRING_DOCKER_PORT}
+    expose:
+      - ${SPRING_LOCAL_PORT}
+    environment:
+      SPRING_PROFILES_ACTIVE: "docker"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://${MYSQL_HOST}:${MYSQL_DOCKER_PORT}/${MYSQL_DATABASE}?useSSL=false"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      APP_SECURITY_JWT_KEYSTORE-LOCATION: "${KEYSTORE_LOCATION}"
+      APP_SECURITY_JWT_KEYSTORE-PASSWORD: "${KEYSTORE_PASSWORD}"
+      APP_SECURITY_JWT_KEY-ALIAS: "${KEY_ALIAS}"
+      APP_SECURITY_JWT_PRIVATE-KEY-PASSPHRASE: "${PRIVATE_KEY_PASSPHRASE}"
+      SPRING_APPLICATION_NAME: "${APPLICATION_NAME}"
+      SERVER_PORT: ${SPRING_LOCAL_PORT}
+    depends_on:
+        mysqldb:
+          condition: service_healthy
+    external_links:
+      - mysqldb
+    command: mvn clean compile exec:java
+volumes:
+  mysqldb:
+    driver: local

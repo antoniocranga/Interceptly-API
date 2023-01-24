@@ -5,6 +5,7 @@ import com.interceptly.api.dao.IssueDao;
 import com.interceptly.api.dao.PermissionDao;
 import com.interceptly.api.dao.ProjectDao;
 import com.interceptly.api.dao.composites.UserProjectComposite;
+import com.interceptly.api.dto.IssueDto;
 import com.interceptly.api.dto.ProjectDto;
 import com.interceptly.api.repository.EventRepository;
 import com.interceptly.api.repository.IssueRepository;
@@ -81,5 +82,20 @@ public class ProjectController {
         }
         issueDao.ifPresent(issue -> issue.setEvents(events));
         return issueDao;
+    }
+
+    @PatchMapping ("/{projectId}/issues/{issueId}")
+    public IssueDao updateIssue(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId, @PathVariable Integer issueId, @RequestBody IssueDto updatedIssue){
+        Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
+        Optional<PermissionDao> permissionDao = permissionRepository.findByUserIdAndProjectId(userId, projectId);
+        if(permissionDao.isEmpty() || permissionDao.get().getPermission() == PermissionEnum.VIEW){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
+        }
+        Optional<IssueDao> issueDao = issueRepository.findById(issueId);
+        if(issueDao.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
+        }
+        issueRepository.saveAndFlush(updatedIssue.toDao(issueDao.get()));
+        return issueDao.get();
     }
 }

@@ -38,5 +38,5 @@ public class PermissionDao implements Serializable {
 
     @Column(name = "permission", nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    PermissionEnum permission;
+    private PermissionEnum permission;
 }

@@ -1,11 +1,7 @@
 package com.interceptly.api.dao;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import lombok.extern.java.Log;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -14,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -65,14 +62,6 @@ public class EventDao {
     @CreatedDate
     private Date createdAt;
 
-    @Column(name = "browser", updatable = false, columnDefinition = "TEXT",length = 65535)
-    @Size(max =65535)
-    private String browser;
-
-    @Column(name = "client_os", updatable = false, columnDefinition = "TEXT", length = 65535)
-    @Size(max = 65535)
-    private String clientOs;
-
     @NotNull
     @Column(name = "issue_id", updatable = false, nullable = false, columnDefinition = "INT UNSIGNED")
     private Integer issueId;
@@ -86,6 +75,15 @@ public class EventDao {
     @Size(max = 100)
     private String type;
 
+    @Column(name= "version", updatable = false, columnDefinition = "VARCHAR(15)", length = 15)
+    @Size(max = 15)
+    private String version;
+
+    @Column(name= "user_agent", updatable = false, columnDefinition = "TEXT")
+    private String userAgent;
+
+    @Transient
+    private Map<String, Object> tags;
 //    @JoinColumn(name = "issue_id", nullable = false)
 //    @ManyToOne
 //    @OnDelete(action= OnDeleteAction.CASCADE)
