@@ -6,6 +6,7 @@ import com.interceptly.api.util.RequestUtil;
 import com.interceptly.api.util.enums.IssueStatusEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import net.minidev.json.JSONObject;
 
 import javax.persistence.MappedSuperclass;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +31,7 @@ public abstract class Event {
     private String message;
     private String name;
     private String stackTrace;
-    private String body;
+    private Map<String, Object> body;
     private String environment;
     private String packageName;
     private String packageVersion;
@@ -43,10 +44,10 @@ public abstract class Event {
         String userAgent = request.getHeader("User-Agent");
         String headers = contentType + ":" + userAgent;
         Map<String, Object> tags = new HashMap<>();
-        try{
-            tags = RequestUtil.parseUserAgent(userAgent);
-        }catch(Exception ignored){}
-
+        try {
+            tags.putAll(RequestUtil.parseUserAgent(userAgent));
+        } catch (Exception ignored) {
+        }
         return EventDao.builder().
                 type(type).
                 message(message).
@@ -55,12 +56,17 @@ public abstract class Event {
                 userAgent(userAgent).
                 name(name).
                 stackTrace(stackTrace).
-                body(body).
+                body(new JSONObject(body).toString()).
                 environment(environment).
                 packageName(packageName).
                 packageVersion(packageVersion).
                 version(version).
-                tags(tags).
+                tags(tags.toString()).
+                deviceType((String) tags.get("deviceType")).
+                browserMajorVersion((String) tags.get("browserMajorVersion")).
+                browser((String) tags.get("browser")).
+                platformVersion((String) tags.get("platformVersion")).
+                browserType((String) tags.get("browserType")).
                 build();
     }
 

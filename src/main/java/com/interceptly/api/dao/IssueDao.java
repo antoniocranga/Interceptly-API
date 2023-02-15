@@ -5,6 +5,7 @@ import com.interceptly.api.util.enums.IssueStatusEnum;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Formula;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
@@ -66,5 +67,5 @@ public class IssueDao extends BaseEntity{
     private LocalDateTime firstSeen;
 
     @Transient
-    private List<EventDao> events;
+    private Page<EventDao> events;
 }

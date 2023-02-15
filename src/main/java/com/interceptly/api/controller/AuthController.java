@@ -1,5 +1,6 @@
 package com.interceptly.api.controller;
 
+import java.security.Provider;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,12 +16,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotNull;
+
 @RestController
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -38,7 +41,6 @@ public class AuthController {
     public AuthResultDto login(
             @RequestParam String email,
             @RequestParam String password) {
-
         UserDetails userDetails;
         try {
             userDetails = userDetailsService.loadUserByUsername(email);
@@ -51,18 +53,29 @@ public class AuthController {
             Map<String, String> claims = Map.of("user_id",userDao.get().getId().toString());
             String jwt = jwtHelper.createJwtForClaims(email, claims);
             return new AuthResultDto(
-                    Optional.empty(),jwt
+                    userDao,jwt
             );
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
     }
 
     @PostMapping(path = "register", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-    public AuthResultDto register(@RequestParam String email, @RequestParam String password, @RequestParam Integer provider) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResultDto register(
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam ProviderEnum provider) {
+        if(userRepository.findByEmail(email).isPresent()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This email is already registered");
+        }
         UserDao userDao = new UserDao();
         userDao.setEmail(email);
         userDao.setPassword(passwordEncoder.encode(password));
-        userDao.setProvider(ProviderEnum.values()[provider]);
+        userDao.setProvider(provider);
+        userDao.setFirstName(firstName);
+        userDao.setLastName(lastName);
         try{
             userDao = userRepository.save(userDao);
             Map<String, String> claims = Map.of("user_id",userDao.getId().toString());

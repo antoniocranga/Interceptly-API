@@ -26,8 +26,9 @@ public class ProjectDao extends BaseEntity{
     @Size(max = 150)
     private String description;
 
-    @Column(name="image_url")
-    private String imageUrl;
+    @Column(name="color", columnDefinition = "VARCHAR(7) default '#2196f3' ")
+    @Size(max = 7)
+    private String color;
 
     @Column(name="api_key",unique = true, columnDefinition = "VARCHAR(36)",nullable = false)
     @NotNull

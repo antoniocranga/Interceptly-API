@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.util.enums.PermissionEnum;
 import lombok.*;
-import org.apache.catalina.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
@@ -31,6 +29,11 @@ public class PermissionDao implements Serializable {
     @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     @JsonIgnore
     private Integer userId;
+
+    @Column(name = "project_id", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private Integer projectId;
+
     @ManyToOne
     @MapsId("projectId")
     @JoinColumn(name = "project_id", nullable = false, insertable = false, updatable = false)

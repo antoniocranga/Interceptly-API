@@ -10,8 +10,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class RequestUtil {
-    public static Map<String,Object> parseUserAgent(String userAgent) throws IOException, ParseException {
-        final UserAgentParser parser = new UserAgentService().loadParser();
+    static UserAgentParser parser;
+
+    static {
+        try {
+            parser = new UserAgentService().loadParser();
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String,Object> parseUserAgent(String userAgent){
         final Capabilities capabilities = parser.parse(userAgent);
         final String browser = capabilities.getBrowser();
         final String browserType = capabilities.getBrowserType();
@@ -50,9 +59,5 @@ public abstract class RequestUtil {
             clientOs = "UnKnown, More-Info: "+ userAgent;
         }
         return clientOs;
-    }
-    public static String browser(String userAgent) {
-        String browser = "";
-        return browser;
     }
 }
