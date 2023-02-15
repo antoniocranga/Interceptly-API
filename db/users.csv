@@ -1,0 +1,6 @@
+id,first_name,last_name,username,photo_url,verified,email,password,provider,created_at,updated_at
+1,,,,,,test_email@email.com,$2a$10$UH0.AbuIjOAZZh38LlHGYezenlDDl8PkzYnE3JbniAe0TTA08smOy,0,2023-01-25 00:00:00,2023-01-25 00:00:00
+4,,,,,,test_email1@email.com,$2a$10$LJNfo9t37Rfp.zWRbxdCP.gAg9AIGNXYAQfEMspM53NXXG0zAiLoG,0,2023-01-25 00:00:00,2023-01-25 00:00:00
+5,"","",,,,azteca@gmail.com,$2a$10$G.kt5rgZpWbHjtcglhzpDu3Mb45wrIqvmVx/nczFM/bs/gdxahmOG,0,2023-01-27 23:40:17,2023-01-27 23:40:17
+6,"","",,,,azteca1@gmail.com,$2a$10$iar29UePQfjLsarX3bgh2OpoP5CGhvblF8ft1iaw5wKLpiqHczLjS,0,2023-01-27 23:40:58,2023-01-27 23:40:58
+7,"","",,,,test_email2@email.com,$2a$10$YYcJGpFUAM1qV.sjvInbFOXLXf5P0kUQbS9ekyqzWpWKdqR8r0x/G,0,2023-01-27 23:42:40,2023-01-27 23:42:40
