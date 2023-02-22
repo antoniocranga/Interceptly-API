@@ -30,9 +30,9 @@ import java.util.NoSuchElementException;
 public class ExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResponseEntity<Object> onConstraintValidationException(ConstraintViolationException ex){
+    ResponseEntity<Object> onConstraintValidationException(ConstraintViolationException ex) {
         List<String> errors = new ArrayList<>();
-        for (ConstraintViolation<?> violation : ex.getConstraintViolations()){
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             errors.add(violation.getPropertyPath().toString() + " " + violation.getMessage());
         }
         ApiErrorModel error = new ApiErrorModel(
@@ -83,7 +83,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<Object> handleAccessDeniedException(Exception ex, WebRequest request) {
-        if(ex.getMessage().toLowerCase().contains("access is denied")) {
+        if (ex.getMessage().toLowerCase().contains("access is denied")) {
             return new ResponseEntity<>("Unauthorized Access", new HttpHeaders(), HttpStatus.UNAUTHORIZED);
         }
         ApiErrorModel error = new ApiErrorModel(
@@ -94,7 +94,8 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return ResponseEntityBuilder.build(error);
     }
 
-    @ExceptionHandler({ResponseStatusException.class})public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex){
+    @ExceptionHandler({ResponseStatusException.class})
+    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
         log.error(ex.getMessage());
         ApiErrorModel error = new ApiErrorModel(
                 LocalDateTime.now(),
@@ -104,7 +105,8 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return ResponseEntityBuilder.build(error);
     }
 
-    @ExceptionHandler({DataIntegrityViolationException.class})public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex){
+    @ExceptionHandler({DataIntegrityViolationException.class})
+    public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         log.error(ex.getMessage());
         ApiErrorModel error = new ApiErrorModel(
                 LocalDateTime.now(),

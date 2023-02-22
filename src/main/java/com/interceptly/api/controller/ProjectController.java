@@ -6,12 +6,10 @@ import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.dao.utils.TagsOnly;
 import com.interceptly.api.dto.IssueDto;
 import com.interceptly.api.dto.NotificationDto;
-import com.interceptly.api.dto.get.IssuesGetDto;
 import com.interceptly.api.dto.get.OverviewGetDto;
 import com.interceptly.api.dto.get.StatisticsGetDto;
 import com.interceptly.api.dto.patch.IssuesPatchDto;
 import com.interceptly.api.dto.patch.ProjectPatchDto;
-import com.interceptly.api.dto.post.CommentPostDto;
 import com.interceptly.api.dto.post.IssuePostDto;
 import com.interceptly.api.dto.post.PermissionPostDto;
 import com.interceptly.api.dto.post.ProjectPostDto;
@@ -25,7 +23,6 @@ import com.interceptly.api.util.enums.PermissionEnum;
 import com.interceptly.api.util.enums.converters.DirectionEnumConverter;
 import com.interceptly.api.util.enums.converters.IssueSortEnumConverter;
 import com.interceptly.api.util.enums.converters.IssueStatusEnumConverter;
-import io.swagger.v3.oas.annotations.links.Link;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,13 +36,10 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.websocket.server.PathParam;
 import java.lang.reflect.Field;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -57,31 +51,23 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 public class ProjectController {
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     PermissionRepository permissionRepository;
-
     @Autowired
     EventRepository eventRepository;
-
     @Autowired
     IssueRepository issueRepository;
-
     @Autowired
     ProjectRepository projectRepository;
-
     @Autowired
     CommentRepository commentRepository;
-
     @Autowired
     PermissionUtil permissionUtil;
-
     @Autowired
     NotificationUtil notificationUtil;
-
     @Autowired
     CollaborationRepository collaborationRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     public List<PermissionDao> getProjects(@NotNull JwtAuthenticationToken authenticationToken) {
@@ -137,21 +123,20 @@ public class ProjectController {
             @PathVariable Integer projectId
     ) {
         LocalDateTime localDateTime = LocalDateTime.now();
-        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
+        permissionUtil.getPermission(authenticationToken, projectId);
 
         LocalDateTime start = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonthValue(), 1, 0, 0);
         LocalDateTime end = start.plusMonths(1);
 
 
         LocalDateTime lastMonthStart = start.minusMonths(1);
-        LocalDateTime lastMonthEnd = start;
 
         Long events = eventRepository.countByProjectIdAndCreatedAtBetweenStartAndEnd(projectId, start, end);
         Long solvedIssues = issueRepository.countByProjectIdAndStatusAndUpdatedAtBetweenStartAndEnd(projectId, IssueStatusEnum.RESOLVED, start, end);
         Long remainingIssues = issueRepository.countByProjectIdAndStatus(projectId, IssueStatusEnum.ACTIVE);
 
-        Long lastMonthEvents = eventRepository.countByProjectIdAndCreatedAtBetweenStartAndEnd(projectId, lastMonthStart, lastMonthEnd);
-        Long lastMonthSolvedIssues = issueRepository.countByProjectIdAndStatusAndUpdatedAtBetweenStartAndEnd(projectId, IssueStatusEnum.RESOLVED, lastMonthStart, lastMonthEnd);
+        Long lastMonthEvents = eventRepository.countByProjectIdAndCreatedAtBetweenStartAndEnd(projectId, lastMonthStart, start);
+        Long lastMonthSolvedIssues = issueRepository.countByProjectIdAndStatusAndUpdatedAtBetweenStartAndEnd(projectId, IssueStatusEnum.RESOLVED, lastMonthStart, start);
 
         Long allSolvedIssues = issueRepository.countByProjectIdAndStatus(projectId, IssueStatusEnum.RESOLVED);
         Long allEvents = eventRepository.countByProjectId(projectId);
@@ -194,7 +179,6 @@ public class ProjectController {
     @Transactional
     public String patchIssues(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody IssuesPatchDto issuesPatchDto, @PathVariable Integer projectId) {
         PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
-        Optional<UserDao> userDao = userRepository.findById(permissionDao.getUserId());
         issueRepository.updateIssuesBulk(issuesPatchDto.getStatus(), issuesPatchDto.getIds());
         return "Status updated";
     }
@@ -228,14 +212,13 @@ public class ProjectController {
         PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime start = localDateTime.minusDays(range);
-        LocalDateTime end = localDateTime;
         List<String> browsers = eventRepository.selectBrowsers(projectId);
         List<String> deviceTypes = eventRepository.selectDeviceTypes(projectId);
-        List<Map<String, Object>> eventsByBrowser = formatTags(eventRepository.countByBrowserAndFormattedDate(projectId, start, end), range);
-        List<Map<String, Object>> eventsByDeviceType = formatTags(eventRepository.countByDeviceTypeAndFormattedDate(projectId, start, end), range);
-        List<Map<String, Object>> issues = formatTags(issueRepository.countByIssuesAndFormattedDate(projectId, start, end), range);
-        List<Map<String, Object>> events = formatTags(eventRepository.countByEventsAndFormattedDate(projectId, start, end), range);
-        List<Map<String, Object>> solvedIssues = formatTags(issueRepository.countByIssuesAndStatusAndFormattedDate(projectId, IssueStatusEnum.RESOLVED, start, end), range);
+        List<Map<String, Object>> eventsByBrowser = formatTags(eventRepository.countByBrowserAndFormattedDate(projectId, start, localDateTime), range);
+        List<Map<String, Object>> eventsByDeviceType = formatTags(eventRepository.countByDeviceTypeAndFormattedDate(projectId, start, localDateTime), range);
+        List<Map<String, Object>> issues = formatTags(issueRepository.countByIssuesAndFormattedDate(projectId, start, localDateTime), range);
+        List<Map<String, Object>> events = formatTags(eventRepository.countByEventsAndFormattedDate(projectId, start, localDateTime), range);
+        List<Map<String, Object>> solvedIssues = formatTags(issueRepository.countByIssuesAndStatusAndFormattedDate(projectId, IssueStatusEnum.RESOLVED, start, localDateTime), range);
         List<OverviewGetDto> overviewGetDto = getOverview(authenticationToken, projectId);
         return new StatisticsGetDto(issues, events, solvedIssues, eventsByBrowser, eventsByDeviceType, browsers, deviceTypes, overviewGetDto);
     }
@@ -253,19 +236,9 @@ public class ProjectController {
                     valueForTags.put(localDate.minusDays(i).toString(), 0L);
                 }
                 valuesForTags.add(valueForTags);
-//                Map<String, Object> newMapEntry = new HashMap<>();
-//                newMapEntry.put("name", tagsOnly.getTag());
-//                newMapEntry.put("data", new ArrayList<>());
-//                list.add(newMapEntry);
-//                index = list.size() - 1;
-//                indexMap.put(tagsOnly.getTag(), index);
                 index = valuesForTags.size() - 1;
                 indexMap.put(tagsOnly.getTag(), index);
             }
-//            Map<String, Object> coordinates = new HashMap<>();
-//            coordinates.put("x", tagsOnly.getDate());
-//            coordinates.put("y", tagsOnly.getValue());
-//            ((ArrayList) list.get(index).get("data")).add(coordinates);
             valuesForTags.get(index).put(tagsOnly.getDate().toString(), tagsOnly.getValue());
         }
         for (Map.Entry<String, Integer> entry : indexMap.entrySet()) {
@@ -351,9 +324,6 @@ public class ProjectController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, null);
         }
         collaborationRepository.delete(collaborationDao.get());
-//        NotificationDto notificationDto = NotificationDto.builder().type(NotificationTypeEnum.ISSUE_COLLABORATION).sentBy(permissionDao.getUserId()).emailBy(permissionDao.getEmail()).sentTo(user.get().getId()).emailTo(user.get().getEmail()).issueId(issuePostDto.getIssueId()).projectId(issuePostDto.getProjectId()).build();
-//        notificationUtil.sendNotificationToSpecific(notificationDto);
-
         return "Collaboration deleted.";
     }
 

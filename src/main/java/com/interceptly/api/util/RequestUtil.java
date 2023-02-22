@@ -20,7 +20,7 @@ public abstract class RequestUtil {
         }
     }
 
-    public static Map<String,Object> parseUserAgent(String userAgent){
+    public static Map<String, Object> parseUserAgent(String userAgent) {
         final Capabilities capabilities = parser.parse(userAgent);
         final String browser = capabilities.getBrowser();
         final String browserType = capabilities.getBrowserType();
@@ -30,33 +30,29 @@ public abstract class RequestUtil {
         final String platformVersion = capabilities.getPlatformVersion();
 
         Map<String, Object> map = new HashMap<>();
-        map.put("browser",browser);
-        map.put("browserType",browserType);
-        map.put("browserMajorVersion",browserMajorVersion);
-        map.put("deviceType",deviceType);
-        map.put("platform",platform);
-        map.put("platformVersion",platformVersion);
+        map.put("browser", browser);
+        map.put("browserType", browserType);
+        map.put("browserMajorVersion", browserMajorVersion);
+        map.put("deviceType", deviceType);
+        map.put("platform", platform);
+        map.put("platformVersion", platformVersion);
         return map;
     }
-    public static String clientOs(String userAgent){
-        String clientOs = "";
-        if (userAgent.toLowerCase().contains("windows"))
-        {
+
+    public static String clientOs(String userAgent) {
+        String clientOs;
+        if (userAgent.toLowerCase().contains("windows")) {
             clientOs = "Windows";
-        } else if(userAgent.toLowerCase().contains("mac"))
-        {
+        } else if (userAgent.toLowerCase().contains("mac")) {
             clientOs = "Mac";
-        } else if(userAgent.toLowerCase().contains("x11"))
-        {
+        } else if (userAgent.toLowerCase().contains("x11")) {
             clientOs = "Unix";
-        } else if(userAgent.toLowerCase().contains("android"))
-        {
+        } else if (userAgent.toLowerCase().contains("android")) {
             clientOs = "Android";
-        } else if(userAgent.toLowerCase().contains("iphone"))
-        {
+        } else if (userAgent.toLowerCase().contains("iphone")) {
             clientOs = "IPhone";
-        }else{
-            clientOs = "UnKnown, More-Info: "+ userAgent;
+        } else {
+            clientOs = "UnKnown, More-Info: " + userAgent;
         }
         return clientOs;
     }

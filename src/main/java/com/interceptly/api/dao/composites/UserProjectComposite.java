@@ -14,8 +14,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProjectComposite implements Serializable {
-    @Column(name="user_id",columnDefinition = "INT UNSIGNED")
+    @Column(name = "user_id", columnDefinition = "INT UNSIGNED")
     private Integer userId;
-    @Column(name="project_id",columnDefinition = "INT UNSIGNED")
+    @Column(name = "project_id", columnDefinition = "INT UNSIGNED")
     private Integer projectId;
 }

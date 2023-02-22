@@ -1,6 +1,5 @@
 package com.interceptly.api.dto.get;
 
-import com.interceptly.api.dao.utils.TagsOnly;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +12,8 @@ import java.util.Map;
 @Builder
 public class StatisticsGetDto {
     private List<Map<String, Object>> issues;
-    private List<Map<String, Object>>  events;
-    private List<Map<String, Object>>  solvedIssues;
+    private List<Map<String, Object>> events;
+    private List<Map<String, Object>> solvedIssues;
     private List<Map<String, Object>> eventsByBrowser;
     private List<Map<String, Object>> eventsByDeviceType;
     private List<String> browsers;

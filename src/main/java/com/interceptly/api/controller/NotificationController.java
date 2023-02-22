@@ -1,7 +1,7 @@
 package com.interceptly.api.controller;
 
 import com.interceptly.api.dao.NotificationDao;
-import com.interceptly.api.dto.NotificationDto;
+import com.interceptly.api.dto.patch.NotificationPatchDto;
 import com.interceptly.api.repository.NotificationRepository;
 import com.interceptly.api.repository.ProjectRepository;
 import com.interceptly.api.repository.UserRepository;
@@ -18,10 +18,10 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
+@RequestMapping("/notifications")
 @RestController
 @Slf4j
 @CrossOrigin(origins = "*")
-@RequestMapping("/notifications")
 public class NotificationController {
 
     @Autowired
@@ -39,22 +39,21 @@ public class NotificationController {
     @Autowired
     PermissionUtil permissionUtil;
 
-   @PatchMapping("/seen")
-    public String seenNotification(@RequestBody NotificationDto notificationDto){
-       Optional<NotificationDao> notificationDao = notificationRepository.findById(notificationDto.getId());
-       if(notificationDao.isEmpty()){
-           throw new ResponseStatusException(HttpStatus.NOT_FOUND, null);
-       }
-       else {
-           notificationDao.get().setSeen(true);
-           notificationRepository.saveAndFlush(notificationDao.get());
-       }
-       return "Notification seen.";
-   }
+    @PatchMapping("/seen")
+    public String seenNotification(@RequestBody NotificationPatchDto notificationPatchDto) {
+        Optional<NotificationDao> notificationDao = notificationRepository.findById(notificationPatchDto.getId());
+        if (notificationDao.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, null);
+        } else {
+            notificationDao.get().setSeen(true);
+            notificationRepository.saveAndFlush(notificationDao.get());
+        }
+        return "Notification seen.";
+    }
 
-   @GetMapping
-    public List<NotificationDao> getNotifications(@NotNull JwtAuthenticationToken authenticationToken){
-       Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
-       return notificationRepository.findAllBySentToAndSeenFalse(userId);
-   }
+    @GetMapping
+    public List<NotificationDao> getNotifications(@NotNull JwtAuthenticationToken authenticationToken) {
+        Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
+        return notificationRepository.findAllBySentToAndSeenFalse(userId);
+    }
 }

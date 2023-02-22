@@ -12,8 +12,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthResultDto {
 
-    @JsonProperty("user")
-    private Optional<UserDao> userDao;
     @NotNull
     private final String jwt;
+    @JsonProperty("user")
+    private Optional<UserDao> userDao;
 }

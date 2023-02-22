@@ -15,12 +15,14 @@ public class NotificationUtil {
 
     @Autowired
     NotificationRepository notificationRepository;
-    public void sendNotificationToSpecific(NotificationDto notificationDto){
+
+    public void sendNotificationToSpecific(NotificationDto notificationDto) {
         NotificationDao notificationDao = notificationDto.toNotificationDao();
         notificationRepository.saveAndFlush(notificationDao);
         simpMessagingTemplate.convertAndSendToUser(notificationDto.getEmailTo(), "/specific", notificationDao);
     }
-    public void sendNotificationToTopic(NotificationDto notificationDto){
+
+    public void sendNotificationToTopic(NotificationDto notificationDto) {
         NotificationDao notificationDao = notificationDto.toNotificationDao();
         notificationRepository.saveAndFlush(notificationDao);
         simpMessagingTemplate.convertAndSend("/topic/" + notificationDto.getProjectId(), notificationDao);

@@ -1,19 +1,14 @@
 package com.interceptly.api.repository;
 
 import com.interceptly.api.dao.EventDao;
-import com.interceptly.api.dao.PermissionDao;
 import com.interceptly.api.dao.utils.TagsOnly;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<EventDao, UUID> {

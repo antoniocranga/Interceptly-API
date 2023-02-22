@@ -1,7 +1,5 @@
 package com.interceptly.api.controller;
 
-import com.interceptly.api.dao.PermissionDao;
-import com.interceptly.api.dao.ProjectDao;
 import com.interceptly.api.dao.UserDao;
 import com.interceptly.api.dto.patch.UserPatchDto;
 import com.interceptly.api.repository.PermissionRepository;
@@ -18,9 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
-
-@RestController
 @RequestMapping("/users")
+@RestController
 @Slf4j
 @CrossOrigin(origins = "*")
 public class UserController {
@@ -44,20 +41,20 @@ public class UserController {
     }
 
     @PatchMapping
-    public UserDao patchUser(@NotNull JwtAuthenticationToken authentication, @RequestBody @Valid UserPatchDto userPatchDto){
+    public UserDao patchUser(@NotNull JwtAuthenticationToken authentication, @RequestBody @Valid UserPatchDto userPatchDto) {
         Integer userId = Integer.parseInt(authentication.getTokenAttributes().get("user_id").toString());
         Optional<UserDao> userDao = userRepository.findById(userId);
-        if(userDao.isEmpty()){
+        if (userDao.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, null);
         }
-        if(userPatchDto.getUsername() != null){
+        if (userPatchDto.getUsername() != null) {
             userDao.get().setUsername(userPatchDto.getUsername());
         }
-        if(userPatchDto.getLastName() != null){
+        if (userPatchDto.getLastName() != null) {
             userDao.get().setLastName(userPatchDto.getLastName());
 
         }
-        if(userPatchDto.getFirstName() != null){
+        if (userPatchDto.getFirstName() != null) {
             userDao.get().setFirstName(userPatchDto.getFirstName());
         }
         userRepository.saveAndFlush(userDao.get());

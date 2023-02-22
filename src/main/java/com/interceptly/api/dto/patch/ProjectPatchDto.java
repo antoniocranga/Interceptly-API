@@ -1,15 +1,17 @@
 package com.interceptly.api.dto.patch;
 
 import com.interceptly.api.dto.base.Project;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 public class ProjectPatchDto extends Project {
-    public ProjectPatchDto(String title, String description, String color, Integer owner){
-        super(title,description,color);
+    public ProjectPatchDto(String title, String description, String color, Integer owner) {
+        super(title, description, color);
         this.setOwner(owner);
     }
 }

@@ -2,41 +2,37 @@ package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.util.enums.IssueStatusEnum;
-import com.interceptly.api.util.enums.PermissionEnum;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "issues")
-public class IssueDao extends BaseEntity{
+public class IssueDao extends BaseEntity {
 
     @NonNull
     @Size(max = 65535)
-    @Column(name = "title", nullable = false, columnDefinition = "TEXT",length = 65535)
+    @Column(name = "title", nullable = false, columnDefinition = "TEXT", length = 65535)
     private String title;
 
     @NonNull
     @Size(max = 16777215)
-    @Column(name="description", nullable = false, columnDefinition = "MEDIUMTEXT",length = 16777215)
+    @Column(name = "description", nullable = false, columnDefinition = "MEDIUMTEXT", length = 16777215)
     private String description;
 
     @NonNull
-    @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'",length = 15)
+    @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'", length = 15)
     @Enumerated(EnumType.STRING)
     @ColumnDefault("ACTIVE")
     private IssueStatusEnum status;

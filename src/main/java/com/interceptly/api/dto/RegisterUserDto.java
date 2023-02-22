@@ -11,7 +11,7 @@ public class RegisterUserDto {
     private String firstName;
     private String lastName;
     @NotEmpty(message = "The email address is required.")
-    @Email(message= "The email address is invalid.")
+    @Email(message = "The email address is invalid.")
     private String email;
     private String password;
     private ProviderEnum provider;

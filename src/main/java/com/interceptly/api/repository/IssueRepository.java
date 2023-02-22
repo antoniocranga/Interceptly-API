@@ -9,18 +9,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface IssueRepository extends JpaRepository<IssueDao, Integer> {
-
-    Optional<IssueDao> findByTypeContainingIgnoreCase(String type);
-
-    Optional<IssueDao> findByTypeContainingIgnoreCaseAndMessageContainingIgnoreCase(String type, String message);
-
     Optional<IssueDao> findByProjectIdAndTypeContainingIgnoreCaseAndMessageContainingIgnoreCase(Integer projectId, String type, String message);
 
     @Query("select count(*) from IssueDao issue where issue.projectId = ?1 and issue.status = ?2 and issue.createdAt between ?3 and ?4")

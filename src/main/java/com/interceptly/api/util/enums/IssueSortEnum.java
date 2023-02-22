@@ -8,13 +8,13 @@ public enum IssueSortEnum {
 
     private final String value;
 
-    IssueSortEnum(String value){
+    IssueSortEnum(String value) {
         this.value = value;
     }
 
-    public static IssueSortEnum fromValue(String value){
-        for(IssueSortEnum issueSortEnum : values()){
-            if(issueSortEnum.value.equalsIgnoreCase(value)){
+    public static IssueSortEnum fromValue(String value) {
+        for (IssueSortEnum issueSortEnum : values()) {
+            if (issueSortEnum.value.equalsIgnoreCase(value)) {
                 return issueSortEnum;
             }
         }

@@ -1,7 +1,6 @@
 package com.interceptly.api.controller;
 
 import com.interceptly.api.dao.CommentDao;
-import com.interceptly.api.dao.IssueDao;
 import com.interceptly.api.dao.PermissionDao;
 import com.interceptly.api.dto.delete.CommentDeleteDto;
 import com.interceptly.api.dto.patch.CommentPatchDto;
@@ -17,7 +16,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.swing.text.html.Option;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
@@ -27,8 +25,6 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @CrossOrigin(origins = "*")
-
-
 public class CommentController {
     @Autowired
     CommentRepository commentRepository;

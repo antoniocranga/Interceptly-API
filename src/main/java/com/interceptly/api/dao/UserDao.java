@@ -1,10 +1,11 @@
 package com.interceptly.api.dao;
 
-import com.interceptly.api.util.ProviderEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import com.interceptly.api.util.ProviderEnum;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -15,7 +16,7 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @Table(name = "users")
-public class UserDao extends BaseEntity{
+public class UserDao extends BaseEntity {
 
     @Column(name = "first_name", columnDefinition = "VARCHAR(20)")
     @Size(max = 20)

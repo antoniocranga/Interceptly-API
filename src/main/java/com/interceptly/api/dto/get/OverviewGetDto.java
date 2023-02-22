@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,7 +16,7 @@ public class OverviewGetDto {
     private Boolean isDecreasing;
     private String tooltip;
 
-    public OverviewGetDto(String header, Long total, Long thisMonth, Long lastMonth,String tooltip) {
+    public OverviewGetDto(String header, Long total, Long thisMonth, Long lastMonth, String tooltip) {
         this.header = header;
         this.total = total;
         this.thisMonth = thisMonth;

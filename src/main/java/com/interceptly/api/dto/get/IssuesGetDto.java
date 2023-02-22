@@ -9,14 +9,14 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class IssuesGetDto {
-   private List<IssueDao> issues;
+    private List<IssueDao> issues;
 
-   private Integer page;
+    private Integer page;
 
-   private Integer perPage;
+    private Integer perPage;
 
-   private Integer pageCount;
+    private Integer pageCount;
 
-   private Integer totalCount;
+    private Integer totalCount;
 
 }

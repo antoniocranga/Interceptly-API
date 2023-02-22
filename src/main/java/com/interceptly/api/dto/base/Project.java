@@ -1,15 +1,12 @@
 package com.interceptly.api.dto.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.interceptly.api.dao.ProjectDao;
-import com.interceptly.api.dto.patch.ProjectPatchDto;
-import com.interceptly.api.dto.post.ProjectPostDto;
-import lombok.*;
-
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
+
 @Getter
 @Setter
 public abstract class Project {
@@ -22,7 +19,7 @@ public abstract class Project {
     @JsonIgnore
     private Integer owner;
 
-    public Project(String title, String description, String color){
+    public Project(String title, String description, String color) {
         this.title = title;
         this.description = description;
         this.color = color;

@@ -1,9 +1,5 @@
 package com.interceptly.api.controller;
 
-import java.security.Provider;
-import java.util.Map;
-import java.util.Optional;
-
 import com.interceptly.api.dao.UserDao;
 import com.interceptly.api.dto.AuthResultDto;
 import com.interceptly.api.repository.UserRepository;
@@ -16,11 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.constraints.NotNull;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -50,10 +46,10 @@ public class AuthController {
 
         if (passwordEncoder.matches(password, userDetails.getPassword())) {
             Optional<UserDao> userDao = userRepository.findByEmail(email);
-            Map<String, String> claims = Map.of("user_id",userDao.get().getId().toString());
+            Map<String, String> claims = Map.of("user_id", userDao.get().getId().toString());
             String jwt = jwtHelper.createJwtForClaims(email, claims);
             return new AuthResultDto(
-                    userDao,jwt
+                    jwt, userDao
             );
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
@@ -67,7 +63,7 @@ public class AuthController {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam ProviderEnum provider) {
-        if(userRepository.findByEmail(email).isPresent()){
+        if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This email is already registered");
         }
         UserDao userDao = new UserDao();
@@ -76,13 +72,9 @@ public class AuthController {
         userDao.setProvider(provider);
         userDao.setFirstName(firstName);
         userDao.setLastName(lastName);
-        try{
-            userDao = userRepository.save(userDao);
-            Map<String, String> claims = Map.of("user_id",userDao.getId().toString());
-            String jwt = jwtHelper.createJwtForClaims(email,claims);
-            return new AuthResultDto(Optional.of(userDao), jwt);
-        }catch(Exception ex){
-            throw ex;
-        }
+        userDao = userRepository.save(userDao);
+        Map<String, String> claims = Map.of("user_id", userDao.getId().toString());
+        String jwt = jwtHelper.createJwtForClaims(email, claims);
+        return new AuthResultDto(jwt, Optional.of(userDao));
     }
 }

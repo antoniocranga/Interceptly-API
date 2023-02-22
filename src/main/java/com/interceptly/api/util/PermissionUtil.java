@@ -3,7 +3,6 @@ package com.interceptly.api.util;
 import com.interceptly.api.dao.PermissionDao;
 import com.interceptly.api.repository.PermissionRepository;
 import com.interceptly.api.util.enums.PermissionEnum;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -19,7 +18,7 @@ public class PermissionUtil {
     @Autowired
     PermissionRepository permissionRepository;
 
-    public PermissionDao getPermission(@NotNull JwtAuthenticationToken authenticationToken, @NotNull Integer projectId){
+    public PermissionDao getPermission(@NotNull JwtAuthenticationToken authenticationToken, @NotNull Integer projectId) {
         Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
         Optional<PermissionDao> permissionDao = permissionRepository.findByUserIdAndProjectId(userId, projectId);
         if (permissionDao.isEmpty()) {

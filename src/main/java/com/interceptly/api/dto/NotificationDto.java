@@ -6,10 +6,6 @@ import com.interceptly.api.util.enums.NotificationTypeEnum;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.List;
-
 @Data
 @Builder
 public class NotificationDto {
@@ -24,10 +20,10 @@ public class NotificationDto {
     private Integer sentBy;
     private String emailBy;
 
-    public NotificationDao toNotificationDao(){
+    public NotificationDao toNotificationDao() {
         String message = null;
         String redirectUrl = null;
-        switch (type){
+        switch (type) {
             case PROJECT_PERMISSION -> {
                 message = emailBy + " invited you to collaborate on the project " + projectId;
                 redirectUrl = "http://localhost:3000/dashboard/projects/" + projectId;

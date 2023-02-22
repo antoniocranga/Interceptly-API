@@ -13,8 +13,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserIssueComposite implements Serializable {
-    @Column(name="user_id",columnDefinition = "INT UNSIGNED")
+    @Column(name = "user_id", columnDefinition = "INT UNSIGNED")
     private Integer userId;
-    @Column(name="issue_id",columnDefinition = "INT UNSIGNED")
+    @Column(name = "issue_id", columnDefinition = "INT UNSIGNED")
     private Integer issueId;
 }

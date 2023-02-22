@@ -3,7 +3,6 @@ package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.dao.composites.UserIssueComposite;
-import com.interceptly.api.dao.composites.UserProjectComposite;
 import lombok.*;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
@@ -42,7 +41,7 @@ public class CollaborationDao implements Serializable {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name="issue_id", insertable = false, updatable = false)
+    @JoinColumn(name = "issue_id", insertable = false, updatable = false)
     private IssueDao issue;
 
     @CreatedDate
@@ -50,7 +49,7 @@ public class CollaborationDao implements Serializable {
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME")
     private LocalDateTime createdAt;
 
-    @Column(name= "created_by", nullable = false, updatable = false,columnDefinition = "INT UNSIGNED")
+    @Column(name = "created_by", nullable = false, updatable = false, columnDefinition = "INT UNSIGNED")
     @JsonIgnore
     private Integer createdBy;
 }

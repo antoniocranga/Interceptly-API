@@ -3,55 +3,55 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
     <script type="text/javascript">
-            var stompClient = null;
-            var privateStompClient = null;
-            const headers = {
-                "Authorization" : "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0X2VtYWlsNEBlbWFpbC5jb20iLCJuYmYiOjE2NzcwMTEyNjEsInVzZXJfaWQiOiI4IiwiZXhwIjoxNjc3MDk3NjYxfQ.UTMJUn2-0bOHLAMjHDqMa1YI66WLbuzRCQki-lCDm9tx2bZu0eimBIa9G-APhZ_sVz5JSXlbypELFDjOAypYjy8KSPhZwNI2Iksn7261Ah04ZKWB3k92JfzGprghdWV2D-ddWqRzjTDP5UE-YLxcJW1g1O-nUd6TJZMT7djy0IOnurKQwwgqWJnL-S_Zi5bu8XQaJdUQ_8EwcFuI89DOIvM2uaK2dlJeAH_YcYllMdprOrm-ErwHzJqkzygHgv9rvx-ng9Ek91gOFHTvFb5tiJDIjYk2aIzzNMjodzGw13iaJNafcuvo1RHCcb_dtZIspfFjiFv9h5SsjOg7qWer2NneKN-dD3xNk9cFpC2zHKHe7mGj9Or9mQnkYUq3GoxdaTOEe4qdTzooZDBOL3nEKAi52RnjBqywNw5-ejVc-WV1LUmQodVhlVVSFByKrx6lPLwy_gLig0dAn3aZMHIYjIWC0nCfmgjkpVE9S2rvz-s3X_1ATgKMft4baZ1m5Mkn"
-            }
-            // var socket = new SockJS('/ws');
-            // stompClient = Stomp.over(socket);
-            // stompClient.connect(headers, function(frame) {
-            //     console.log(frame);
-            //     stompClient.subscribe('/all/messages', function(result) {
-            //         show(JSON.parse(result.body));
-            //     });
-            // });
+        var stompClient = null;
+        var privateStompClient = null;
+        const headers = {
+            "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0X2VtYWlsNEBlbWFpbC5jb20iLCJuYmYiOjE2NzcwMTEyNjEsInVzZXJfaWQiOiI4IiwiZXhwIjoxNjc3MDk3NjYxfQ.UTMJUn2-0bOHLAMjHDqMa1YI66WLbuzRCQki-lCDm9tx2bZu0eimBIa9G-APhZ_sVz5JSXlbypELFDjOAypYjy8KSPhZwNI2Iksn7261Ah04ZKWB3k92JfzGprghdWV2D-ddWqRzjTDP5UE-YLxcJW1g1O-nUd6TJZMT7djy0IOnurKQwwgqWJnL-S_Zi5bu8XQaJdUQ_8EwcFuI89DOIvM2uaK2dlJeAH_YcYllMdprOrm-ErwHzJqkzygHgv9rvx-ng9Ek91gOFHTvFb5tiJDIjYk2aIzzNMjodzGw13iaJNafcuvo1RHCcb_dtZIspfFjiFv9h5SsjOg7qWer2NneKN-dD3xNk9cFpC2zHKHe7mGj9Or9mQnkYUq3GoxdaTOEe4qdTzooZDBOL3nEKAi52RnjBqywNw5-ejVc-WV1LUmQodVhlVVSFByKrx6lPLwy_gLig0dAn3aZMHIYjIWC0nCfmgjkpVE9S2rvz-s3X_1ATgKMft4baZ1m5Mkn"
+        }
+        // var socket = new SockJS('/ws');
+        // stompClient = Stomp.over(socket);
+        // stompClient.connect(headers, function(frame) {
+        //     console.log(frame);
+        //     stompClient.subscribe('/all/messages', function(result) {
+        //         show(JSON.parse(result.body));
+        //     });
+        // });
 
-            socket = new SockJS('/ws');
-            privateStompClient = Stomp.over(socket);
-            privateStompClient.connect(headers, function(frame) {
-                    console.log(frame);
-                    privateStompClient.subscribe('/user/specific', function(result) {
-                    console.log(result.body)
-                        show(JSON.parse(result.body));
-                    });
-                });
+        socket = new SockJS('/ws');
+        privateStompClient = Stomp.over(socket);
+        privateStompClient.connect(headers, function (frame) {
+            console.log(frame);
+            privateStompClient.subscribe('/user/specific', function (result) {
+                console.log(result.body)
+                show(JSON.parse(result.body));
+            });
+        });
 
-            function show(message) {
-                var response = document.getElementById('messages');
-                var p = document.createElement('p');
-                p.innerHTML= "message: "  + message.text;
-                response.appendChild(p);
-            }
-        </script>
+        function show(message) {
+            var response = document.getElementById('messages');
+            var p = document.createElement('p');
+            p.innerHTML = "message: " + message.text;
+            response.appendChild(p);
+        }
+    </script>
 </head>
 <body>
 <div>
     <div>
         <button id="sendMessage" onclick="sendMessage();">Send</button>
-        <input type="text" id="text" placeholder="Text"/>
+        <input id="text" placeholder="Text" type="text"/>
     </div>
-    <br />
+    <br/>
     <div>
         <button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
-        <input type="text" id="privateText" placeholder="Private Message"/>
-        <input type="text" id="to" placeholder="To"/>
+        <input id="privateText" placeholder="Private Message" type="text"/>
+        <input id="to" placeholder="To" type="text"/>
     </div>
-    <br />
-    <br />
-    <br />
+    <br/>
+    <br/>
+    <br/>
 
-        <div id="messages"></div>
+    <div id="messages"></div>
 
 </div>
 

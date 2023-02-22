@@ -1,13 +1,13 @@
 package com.interceptly.api.controller;
 
 import com.interceptly.api.dao.CollaborationDao;
-import com.interceptly.api.dao.CommentDao;
 import com.interceptly.api.dao.PermissionDao;
 import com.interceptly.api.dao.UserDao;
 import com.interceptly.api.dao.composites.UserIssueComposite;
-import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.dto.CollaborationDto;
-import com.interceptly.api.repository.*;
+import com.interceptly.api.repository.CollaborationRepository;
+import com.interceptly.api.repository.PermissionRepository;
+import com.interceptly.api.repository.UserRepository;
 import com.interceptly.api.util.PermissionUtil;
 import com.interceptly.api.util.enums.PermissionEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 

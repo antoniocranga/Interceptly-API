@@ -1,19 +1,15 @@
 package com.interceptly.api.dao;
 
 import lombok.*;
-import net.minidev.json.JSONObject;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -102,7 +98,7 @@ public class EventDao {
     @Column(name = "platform_version", updatable = false, columnDefinition = "TEXT")
     private String platformVersion;
 
-    @Column(name = "browser_type",updatable = false, columnDefinition = "TEXT")
+    @Column(name = "browser_type", updatable = false, columnDefinition = "TEXT")
     private String browserType;
 
     @Column(name = "project_id", updatable = false, columnDefinition = "INT")
