@@ -1,3 +1,10 @@
+drop table users;
+drop table events;
+drop table issues;
+drop table permissions;
+drop table projects;
+drop table comments;
+
 create table users
 (
     id         int unsigned auto_increment

@@ -1,19 +1,26 @@
 package com.interceptly.api.controller;
 
 import com.interceptly.api.dao.*;
+import com.interceptly.api.dao.composites.UserIssueComposite;
 import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.dao.utils.TagsOnly;
 import com.interceptly.api.dto.IssueDto;
+import com.interceptly.api.dto.NotificationDto;
 import com.interceptly.api.dto.get.IssuesGetDto;
 import com.interceptly.api.dto.get.OverviewGetDto;
 import com.interceptly.api.dto.get.StatisticsGetDto;
 import com.interceptly.api.dto.patch.IssuesPatchDto;
 import com.interceptly.api.dto.patch.ProjectPatchDto;
+import com.interceptly.api.dto.post.CommentPostDto;
+import com.interceptly.api.dto.post.IssuePostDto;
 import com.interceptly.api.dto.post.PermissionPostDto;
 import com.interceptly.api.dto.post.ProjectPostDto;
 import com.interceptly.api.repository.*;
+import com.interceptly.api.util.NotificationUtil;
+import com.interceptly.api.util.PermissionUtil;
 import com.interceptly.api.util.enums.IssueSortEnum;
 import com.interceptly.api.util.enums.IssueStatusEnum;
+import com.interceptly.api.util.enums.NotificationTypeEnum;
 import com.interceptly.api.util.enums.PermissionEnum;
 import com.interceptly.api.util.enums.converters.DirectionEnumConverter;
 import com.interceptly.api.util.enums.converters.IssueSortEnumConverter;
@@ -64,6 +71,18 @@ public class ProjectController {
     @Autowired
     ProjectRepository projectRepository;
 
+    @Autowired
+    CommentRepository commentRepository;
+
+    @Autowired
+    PermissionUtil permissionUtil;
+
+    @Autowired
+    NotificationUtil notificationUtil;
+
+    @Autowired
+    CollaborationRepository collaborationRepository;
+
     @GetMapping
     public List<PermissionDao> getProjects(@NotNull JwtAuthenticationToken authenticationToken) {
         Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
@@ -83,14 +102,14 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     public PermissionDao getProject(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId) {
-        return getPermission(authenticationToken, projectId);
+        return permissionUtil.getPermission(authenticationToken, projectId);
     }
 
 
     @PatchMapping("/{projectId}")
     public PermissionDao patchProject(@NotNull JwtAuthenticationToken authenticationToken, @NotNull @Valid @RequestBody ProjectPatchDto projectDto, @PathVariable Integer projectId) {
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
-        checkPermission(permissionDao, PermissionEnum.OWNER);
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
+        permissionUtil.checkPermission(permissionDao, PermissionEnum.OWNER);
         ProjectDao projectDao = permissionDao.getProject();
         List<Field> fields = new LinkedList<>();
         fields.addAll(List.of(projectDto.getClass().getDeclaredFields()));
@@ -118,7 +137,7 @@ public class ProjectController {
             @PathVariable Integer projectId
     ) {
         LocalDateTime localDateTime = LocalDateTime.now();
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
 
         LocalDateTime start = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonthValue(), 1, 0, 0);
         LocalDateTime end = start.plusMonths(1);
@@ -147,7 +166,7 @@ public class ProjectController {
 
     @GetMapping("/{projectId}/issues")
     public Page<IssueDao> getIssues(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId, @RequestParam(defaultValue = "25") Integer size, @RequestParam(defaultValue = "0") Integer page, @RequestParam(value = "status", defaultValue = "ACTIVE") IssueStatusEnum status, @RequestParam(value = "range", defaultValue = "14") Integer range, @RequestParam(value = "sortBy", defaultValue = "lastSeen") IssueSortEnum sortBy, @RequestParam(value = "direction", defaultValue = "desc") Sort.Direction direction, @RequestParam(value = "type", defaultValue = "") String type, @RequestParam(value = "title", defaultValue = "") String title) {
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime newDateTime = localDateTime.minusDays(range);
         Pageable paging = PageRequest.of(page, size, Sort.by(direction, sortBy.getValue()));
@@ -159,8 +178,8 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}/issues/{issueId}")
-    public Optional<IssueDao> getIssue(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId, @PathVariable Integer issueId,  @RequestParam(defaultValue = "25") Integer size, @RequestParam(defaultValue = "0") Integer page) {
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
+    public Optional<IssueDao> getIssue(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId, @PathVariable Integer issueId, @RequestParam(defaultValue = "0") Integer page) {
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
         Pageable paging = PageRequest.of(page, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<EventDao> events = eventRepository.findAllByIssueId(issueId, paging);
         Optional<IssueDao> issueDao = issueRepository.findById(issueId);
@@ -174,14 +193,15 @@ public class ProjectController {
     @PatchMapping("/{projectId}/issues")
     @Transactional
     public String patchIssues(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody IssuesPatchDto issuesPatchDto, @PathVariable Integer projectId) {
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
+        Optional<UserDao> userDao = userRepository.findById(permissionDao.getUserId());
         issueRepository.updateIssuesBulk(issuesPatchDto.getStatus(), issuesPatchDto.getIds());
         return "Status updated";
     }
 
     @PatchMapping("/{projectId}/issues/{issueId}")
     public IssueDao updateIssue(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId, @PathVariable Integer issueId, @RequestBody IssueDto updatedIssue) {
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
         if (permissionDao.getPermission() == PermissionEnum.VIEW) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
         }
@@ -194,9 +214,9 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}/reset-key")
-    public PermissionDao resetKey(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId){
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
-        checkPermission(permissionDao, PermissionEnum.OWNER);
+    public PermissionDao resetKey(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId) {
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
+        permissionUtil.checkPermission(permissionDao, PermissionEnum.OWNER);
         permissionDao.getProject().setApiKey(UUID.randomUUID());
         permissionRepository.saveAndFlush(permissionDao);
         return permissionDao;
@@ -205,7 +225,7 @@ public class ProjectController {
 
     @GetMapping("/{projectId}/statistics")
     public StatisticsGetDto getStatistics(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId, @RequestParam(name = "range", defaultValue = "14") Integer range) {
-        PermissionDao permissionDao = getPermission(authenticationToken, projectId);
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime start = localDateTime.minusDays(range);
         LocalDateTime end = localDateTime;
@@ -217,7 +237,7 @@ public class ProjectController {
         List<Map<String, Object>> events = formatTags(eventRepository.countByEventsAndFormattedDate(projectId, start, end), range);
         List<Map<String, Object>> solvedIssues = formatTags(issueRepository.countByIssuesAndStatusAndFormattedDate(projectId, IssueStatusEnum.RESOLVED, start, end), range);
         List<OverviewGetDto> overviewGetDto = getOverview(authenticationToken, projectId);
-        return new StatisticsGetDto(issues, events, solvedIssues, eventsByBrowser, eventsByDeviceType, browsers, deviceTypes,overviewGetDto);
+        return new StatisticsGetDto(issues, events, solvedIssues, eventsByBrowser, eventsByDeviceType, browsers, deviceTypes, overviewGetDto);
     }
 
     private List<Map<String, Object>> formatTags(List<TagsOnly> tags, Integer range) {
@@ -272,9 +292,10 @@ public class ProjectController {
     @PostMapping("/permissions")
     @ResponseStatus(code = HttpStatus.CREATED)
     public String assignPermission(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody @Valid PermissionPostDto permission) {
-        PermissionDao permissionDao = getPermission(authenticationToken, permission.getProjectId());
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, permission.getProjectId());
+        Optional<UserDao> requestOwner = userRepository.findById(permissionDao.getUserId());
         Optional<UserDao> user = userRepository.findByEmail(permission.getEmail());
-        if (user.isEmpty()) {
+        if (user.isEmpty() || requestOwner.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
         }
         log.info(permission.toString());
@@ -288,26 +309,52 @@ public class ProjectController {
                 PermissionDao newPermissionDao = PermissionDao.builder().id(new UserProjectComposite(user.get().getId(), permission.getProjectId())).project(permissionDao.getProject()).permission(permission.getPermission()).build();
                 permissionRepository.saveAndFlush(newPermissionDao);
             }
+            NotificationDto notificationDto = NotificationDto.builder().type(NotificationTypeEnum.PROJECT_PERMISSION).projectId(permissionDao.getProjectId()).sentBy(permissionDao.getUserId()).emailBy(requestOwner.get().getEmail()).sentTo(user.get().getId()).emailTo(user.get().getEmail()).build();
+            notificationUtil.sendNotificationToSpecific(notificationDto);
             return "Permission created";
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
         }
     }
 
-
-    PermissionDao getPermission(@NotNull JwtAuthenticationToken authenticationToken, @NotNull Integer projectId) {
-        Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
-        Optional<PermissionDao> permissionDao = permissionRepository.findByUserIdAndProjectId(userId, projectId);
-        if (permissionDao.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
+    @PostMapping("/issues/collaborations")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public String postCollaboration(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody @Valid IssuePostDto issuePostDto) {
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, issuePostDto.getProjectId());
+        permissionUtil.checkPermission(permissionDao, PermissionEnum.ADMIN);
+        Optional<UserDao> user = userRepository.findByEmail(issuePostDto.getEmail());
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, null);
         }
-        return permissionDao.get();
+        Optional<CollaborationDao> collaborationDao = collaborationRepository.findByUserIdAndIssueId(user.get().getId(), issuePostDto.getIssueId());
+        if (collaborationDao.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, null);
+        } else {
+            CollaborationDao newCollaborationDao = CollaborationDao.builder().id(new UserIssueComposite(user.get().getId(), issuePostDto.getIssueId())).userId(user.get().getId()).issueId(issuePostDto.getIssueId()).createdBy(permissionDao.getUserId()).build();
+            collaborationRepository.saveAndFlush(newCollaborationDao);
+            NotificationDto notificationDto = NotificationDto.builder().type(NotificationTypeEnum.ISSUE_COLLABORATION).sentBy(permissionDao.getUserId()).emailBy(permissionDao.getEmail()).sentTo(user.get().getId()).emailTo(user.get().getEmail()).issueId(issuePostDto.getIssueId()).projectId(issuePostDto.getProjectId()).build();
+            notificationUtil.sendNotificationToSpecific(notificationDto);
+        }
+        return "Collaboration created.";
     }
 
-    void checkPermission(@NotNull PermissionDao permissionDao, @NotNull PermissionEnum desiredPermission) {
-        if (permissionDao.getPermission() != desiredPermission) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
+    @DeleteMapping("/issues/collaborations")
+    public String deleteCollaboration(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody @Valid IssuePostDto issuePostDto) {
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, issuePostDto.getProjectId());
+        permissionUtil.checkPermission(permissionDao, PermissionEnum.ADMIN);
+        Optional<UserDao> user = userRepository.findByEmail(issuePostDto.getEmail());
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, null);
         }
+        Optional<CollaborationDao> collaborationDao = collaborationRepository.findByUserIdAndIssueId(user.get().getId(), issuePostDto.getIssueId());
+        if (collaborationDao.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, null);
+        }
+        collaborationRepository.delete(collaborationDao.get());
+//        NotificationDto notificationDto = NotificationDto.builder().type(NotificationTypeEnum.ISSUE_COLLABORATION).sentBy(permissionDao.getUserId()).emailBy(permissionDao.getEmail()).sentTo(user.get().getId()).emailTo(user.get().getEmail()).issueId(issuePostDto.getIssueId()).projectId(issuePostDto.getProjectId()).build();
+//        notificationUtil.sendNotificationToSpecific(notificationDto);
+
+        return "Collaboration deleted.";
     }
 
     @InitBinder

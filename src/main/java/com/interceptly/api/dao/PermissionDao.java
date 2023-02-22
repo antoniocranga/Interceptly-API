@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.util.enums.PermissionEnum;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -29,6 +30,10 @@ public class PermissionDao implements Serializable {
     @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     @JsonIgnore
     private Integer userId;
+
+    @Formula("(select u.email from users u where u.id = user_id)")
+    @JsonIgnore
+    private String email;
 
     @Column(name = "project_id", nullable = false, insertable = false, updatable = false)
     @JsonIgnore

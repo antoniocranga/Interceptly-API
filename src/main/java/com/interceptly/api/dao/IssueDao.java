@@ -2,11 +2,13 @@ package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.util.enums.IssueStatusEnum;
+import com.interceptly.api.util.enums.PermissionEnum;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -68,4 +70,10 @@ public class IssueDao extends BaseEntity{
 
     @Transient
     private Page<EventDao> events;
+
+    @OneToMany(mappedBy = "issue")
+    private List<CommentDao> comments;
+
+    @OneToMany(mappedBy = "issue")
+    private List<CollaborationDao> collaborators;
 }
