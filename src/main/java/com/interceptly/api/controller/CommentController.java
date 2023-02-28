@@ -42,7 +42,7 @@ public class CommentController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public CommentDao postComment(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody @Valid CommentPostDto comment) {
         PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, comment.getProjectId());
-        CommentDao commentDao = CommentDao.builder().comment(comment.getComment()).userId(permissionDao.getUserId()).issueId(comment.getIssueId()).build();
+        CommentDao commentDao = CommentDao.builder().comment(comment.getComment()).userId(permissionDao.getUserId()).issueId(comment.getIssueId()).email(permissionDao.getEmail()).build();
         commentRepository.saveAndFlush(commentDao);
         return commentDao;
     }

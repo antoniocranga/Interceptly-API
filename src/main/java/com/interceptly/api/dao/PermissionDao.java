@@ -5,9 +5,14 @@ import com.interceptly.api.dao.composites.UserProjectComposite;
 import com.interceptly.api.util.enums.PermissionEnum;
 import lombok.*;
 import org.hibernate.annotations.Formula;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -16,6 +21,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @Table(name = "permissions")
+@EntityListeners(AuditingEntityListener.class)
 public class PermissionDao implements Serializable {
 
     @EmbeddedId
@@ -47,4 +53,18 @@ public class PermissionDao implements Serializable {
     @Column(name = "permission", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private PermissionEnum permission;
+
+    @CreatedDate
+    @NotNull
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Column(name = "created_by", nullable = false)
+    @JsonIgnore
+    private Integer createdBy;
 }

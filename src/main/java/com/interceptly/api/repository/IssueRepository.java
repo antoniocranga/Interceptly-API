@@ -38,6 +38,8 @@ public interface IssueRepository extends JpaRepository<IssueDao, Integer> {
 
     @Query("select 'issues' as tag,count(*) as value,cast(e.createdAt as date) as date from IssueDao e where e.projectId = ?1 and e.status = ?2 and e.createdAt between ?3 and ?4 group by cast(e.createdAt as date) order by cast(e.createdAt as date)")
     List<TagsOnly> countByIssuesAndStatusAndFormattedDate(Integer projectId, IssueStatusEnum status, LocalDateTime start, LocalDateTime end);
+
+    List<IssueDao> findAllByProjectId(Integer projectId);
 }
 
 

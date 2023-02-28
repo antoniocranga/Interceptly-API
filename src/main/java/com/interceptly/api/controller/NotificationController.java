@@ -51,9 +51,20 @@ public class NotificationController {
         return "Notification seen.";
     }
 
+    @PatchMapping("/seen/all")
+    public String seenAllNotifications(@NotNull JwtAuthenticationToken authenticationToken) {
+        Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
+        List<NotificationDao> notificationDaos = notificationRepository.findAllBySentTo(userId);
+        for(NotificationDao notificationDao : notificationDaos){
+            notificationDao.setSeen(true);
+        }
+        notificationRepository.saveAllAndFlush(notificationDaos);
+        return "Notifications seen.";
+    }
+
     @GetMapping
     public List<NotificationDao> getNotifications(@NotNull JwtAuthenticationToken authenticationToken) {
         Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
-        return notificationRepository.findAllBySentToAndSeenFalse(userId);
+        return notificationRepository.findAllBySentToOrderByCreatedAtDesc(userId);
     }
 }

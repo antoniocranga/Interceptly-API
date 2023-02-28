@@ -1,7 +1,10 @@
 package com.interceptly.api.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -103,9 +106,9 @@ public class EventDao {
 
     @Column(name = "project_id", updatable = false, columnDefinition = "INT")
     private Integer projectId;
-//    @JoinColumn(name = "issue_id", nullable = false)
-//    @ManyToOne
-//    @OnDelete(action= OnDeleteAction.CASCADE)
-//    @JsonIgnore
-//    private IssueDao issue;
+
+    @JoinColumn(name = "issue_id", nullable = false, insertable = false, updatable = false)
+    @ManyToOne
+    @JsonIgnore
+    private IssueDao issue;
 }

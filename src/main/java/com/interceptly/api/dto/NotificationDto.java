@@ -19,22 +19,27 @@ public class NotificationDto {
 
     private Integer sentBy;
     private String emailBy;
+    private String role;
 
     public NotificationDao toNotificationDao() {
         String message = null;
         String redirectUrl = null;
         switch (type) {
-            case PROJECT_PERMISSION -> {
-                message = emailBy + " invited you to collaborate on the project " + projectId;
-                redirectUrl = "http://localhost:3000/dashboard/projects/" + projectId;
+            case PROJECT_PERMISSION_ADD -> {
+                message = emailBy + "%invited you to collaborate on the project%" + projectId;
+                redirectUrl = "/dashboard/" + projectId + "/overview";
+            }
+            case PROJECT_PERMISSION_UPDATE -> {
+                message = emailBy + "%updated your role to%" + role + "%in project%" + projectId;
+                redirectUrl = "/dashboard/" + projectId + "/overview";
             }
             case ISSUE_COLLABORATION -> {
-                message = emailBy + " assigned you the issue " + issueId;
-                redirectUrl = "http://localhost:3000/dashboard/projects/" + projectId + "/issues/" + issueId;
+                message = emailBy + "%assigned you the issue%" + issueId + "%project" + projectId;
+                redirectUrl = "/dashboard/" + projectId + "/issues/" + issueId;
             }
             case ISSUE_UPDATE -> {
-                message = emailBy + " updated the issue " + issueId + " to " + issueStatus.name();
-                redirectUrl = "http://localhost:3000/dashboard/projects/" + projectId + "/issues/" + issueId;
+                message = emailBy + "%updated the issue%" + issueId + "%to%" + issueStatus.name();
+                redirectUrl = "/dashboard/" + projectId + "/issues/" + issueId;
             }
             case CRITICAL -> {
             }

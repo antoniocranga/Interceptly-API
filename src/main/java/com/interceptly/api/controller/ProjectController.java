@@ -3,9 +3,13 @@ package com.interceptly.api.controller;
 import com.interceptly.api.dao.*;
 import com.interceptly.api.dao.composites.UserIssueComposite;
 import com.interceptly.api.dao.composites.UserProjectComposite;
+import com.interceptly.api.dao.utils.PermissionsOnly;
 import com.interceptly.api.dao.utils.TagsOnly;
 import com.interceptly.api.dto.IssueDto;
 import com.interceptly.api.dto.NotificationDto;
+import com.interceptly.api.dto.base.Issue;
+import com.interceptly.api.dto.delete.PermissionDeleteDto;
+import com.interceptly.api.dto.delete.ProjectDeleteDto;
 import com.interceptly.api.dto.get.OverviewGetDto;
 import com.interceptly.api.dto.get.StatisticsGetDto;
 import com.interceptly.api.dto.patch.IssuesPatchDto;
@@ -36,9 +40,11 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.websocket.server.PathParam;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -81,11 +87,22 @@ public class ProjectController {
         Integer userId = Integer.parseInt(authenticationToken.getTokenAttributes().get("user_id").toString());
         projectDto.setOwner(userId);
         ProjectDao projectDao = projectRepository.saveAndFlush(projectDto.toProjectDao());
-        PermissionDao permissionDao = PermissionDao.builder().id(new UserProjectComposite(userId, projectDao.getId())).project(projectDao).permission(PermissionEnum.OWNER).build();
+        PermissionDao permissionDao = PermissionDao.builder().id(new UserProjectComposite(userId, projectDao.getId())).createdBy(userId).project(projectDao).permission(PermissionEnum.OWNER).build();
         log.debug(permissionDao.toString());
         return permissionRepository.saveAndFlush(permissionDao);
     }
 
+    @DeleteMapping
+    public String deleteProject(@NotNull JwtAuthenticationToken authenticationToken, @NotNull @Valid @RequestBody ProjectDeleteDto projectDeleteDto){
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken,projectDeleteDto.getProjectId());
+        permissionUtil.checkPermission(permissionDao,PermissionEnum.OWNER);
+        List<PermissionDao> permissionDaos = permissionRepository.findAllByProjectId(projectDeleteDto.getProjectId());
+        List<IssueDao> issueDaos = issueRepository.findAllByProjectId(projectDeleteDto.getProjectId());
+        permissionRepository.deleteAll(permissionDaos);
+        issueRepository.deleteAll(issueDaos);
+        projectRepository.delete(permissionDao.getProject());
+        return "Project deleted.";
+    }
     @GetMapping("/{projectId}")
     public PermissionDao getProject(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId) {
         return permissionUtil.getPermission(authenticationToken, projectId);
@@ -223,12 +240,23 @@ public class ProjectController {
         return new StatisticsGetDto(issues, events, solvedIssues, eventsByBrowser, eventsByDeviceType, browsers, deviceTypes, overviewGetDto);
     }
 
+    /**
+     * Function that formats filter tags for statistics in order to show data within the specified range.
+     *
+     * @param tags
+     * @param range integer that represents the limit of the statistic in days.
+     * @return
+     */
     private List<Map<String, Object>> formatTags(List<TagsOnly> tags, Integer range) {
         LocalDate localDate = LocalDate.now();
         List<Map<String, Object>> list = new ArrayList<>();
         List<Map<String, Long>> valuesForTags = new ArrayList<>();
+        // Map for indexes for every tag, the position of the tag inside the [valuesForTags] list.
         Map<String, Integer> indexMap = new HashMap<>();
         for (TagsOnly tagsOnly : tags) {
+            // For every tag we check if it is already added into the map,
+            // if it isn't present we create a new entry in [valuesForTags] list,
+            // and populate it with the values based on the given [range]
             Integer index = indexMap.get(tagsOnly.getTag());
             if (index == null) {
                 Map<String, Long> valueForTags = new TreeMap<>();
@@ -242,6 +270,8 @@ public class ProjectController {
             valuesForTags.get(index).put(tagsOnly.getDate().toString(), tagsOnly.getValue());
         }
         for (Map.Entry<String, Integer> entry : indexMap.entrySet()) {
+            // For every entry in [indexMap] we compute the output such that [React.js ApexCharts],
+            // can interpret it.
             String tag = entry.getKey();
             Integer index = entry.getValue();
             Map<String, Long> valueForTags = valuesForTags.get(index);
@@ -274,20 +304,40 @@ public class ProjectController {
         log.info(permission.toString());
         if (permissionDao.getPermission() == PermissionEnum.ADMIN || permissionDao.getPermission() == PermissionEnum.OWNER || Objects.equals(permissionDao.getUserId(), user.get().getId())) {
             Optional<PermissionDao> checkedPermission = permissionRepository.findByUserIdAndProjectId(user.get().getId(), permission.getProjectId());
+            NotificationDto notificationDto = NotificationDto.builder().role(permission.getPermission().name()).projectId(permissionDao.getProjectId()).sentBy(permissionDao.getUserId()).emailBy(requestOwner.get().getEmail()).sentTo(user.get().getId()).emailTo(user.get().getEmail()).build();
             if (checkedPermission.isPresent()) {
-                log.info(checkedPermission.get().toString());
                 checkedPermission.get().setPermission(permission.getPermission());
                 permissionRepository.saveAndFlush(checkedPermission.get());
+                notificationDto.setType(NotificationTypeEnum.PROJECT_PERMISSION_UPDATE);
             } else {
-                PermissionDao newPermissionDao = PermissionDao.builder().id(new UserProjectComposite(user.get().getId(), permission.getProjectId())).project(permissionDao.getProject()).permission(permission.getPermission()).build();
+                PermissionDao newPermissionDao = PermissionDao.builder().createdBy(permissionDao.getUserId()).id(new UserProjectComposite(user.get().getId(), permission.getProjectId())).project(permissionDao.getProject()).permission(permission.getPermission()).build();
                 permissionRepository.saveAndFlush(newPermissionDao);
+                notificationDto.setType(NotificationTypeEnum.PROJECT_PERMISSION_ADD);
             }
-            NotificationDto notificationDto = NotificationDto.builder().type(NotificationTypeEnum.PROJECT_PERMISSION).projectId(permissionDao.getProjectId()).sentBy(permissionDao.getUserId()).emailBy(requestOwner.get().getEmail()).sentTo(user.get().getId()).emailTo(user.get().getEmail()).build();
             notificationUtil.sendNotificationToSpecific(notificationDto);
-            return "Permission created";
+            return "Permission created.";
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
         }
+    }
+
+    @DeleteMapping("/permissions")
+    public String deletePermission(@NotNull JwtAuthenticationToken authenticationToken, @RequestBody @Valid PermissionDeleteDto permissionDeleteDto){
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, permissionDeleteDto.getProjectId());
+        permissionUtil.checkPermission(permissionDao, PermissionEnum.ADMIN);
+        Optional<PermissionDao> targetUserPermissionDao = permissionRepository.findByUserIdAndProjectId(permissionDeleteDto.getUserId(), permissionDeleteDto.getProjectId());
+        if(targetUserPermissionDao.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, null);
+        }
+        collaborationRepository.deleteAllByUserId(permissionDeleteDto.getUserId());
+        permissionRepository.delete(targetUserPermissionDao.get());
+        return "Permission deleted.";
+    }
+
+    @GetMapping("/{projectId}/permissions")
+    public List<PermissionsOnly> getPermissions(@NotNull JwtAuthenticationToken authenticationToken, @PathVariable Integer projectId){
+        PermissionDao permissionDao = permissionUtil.getPermission(authenticationToken, projectId);
+        return permissionRepository.findAllByProjectIdCustom(projectId);
     }
 
     @PostMapping("/issues/collaborations")

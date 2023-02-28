@@ -1,5 +1,6 @@
 package com.interceptly.api.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.util.enums.NotificationTypeEnum;
 import lombok.*;
 
@@ -26,8 +27,10 @@ public class NotificationDao extends BaseEntity {
     private String redirectUrl;
 
     @Column(name = "sent_to", columnDefinition = "INT UNSIGNED")
+    @JsonIgnore
     private Integer sentTo;
 
     @Column(name = "sent_by", columnDefinition = "INT UNSIGNED")
+    @JsonIgnore
     private Integer sentBy;
 }

@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<NotificationDao, Integer> {
 
-    List<NotificationDao> findAllBySentToAndSeenFalse(Integer sentTo);
+    List<NotificationDao> findAllBySentToOrderByCreatedAtDesc(Integer sentTo);
+
+    List<NotificationDao> findAllBySentTo(Integer sentTo);
 }

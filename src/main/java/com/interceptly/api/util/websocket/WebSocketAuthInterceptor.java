@@ -37,9 +37,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             Authentication authentication = converter.convert(jwt);
             accessor.setUser(authentication);
         }
-        log.info(message.toString());
-        log.info(message.getPayload().toString());
-
         return message;
     }
 

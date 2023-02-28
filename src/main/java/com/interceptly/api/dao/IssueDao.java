@@ -67,9 +67,14 @@ public class IssueDao extends BaseEntity {
     @Transient
     private Page<EventDao> events;
 
-    @OneToMany(mappedBy = "issue")
+    @OneToMany(mappedBy = "issue",cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OrderBy("createdAt DESC")
     private List<CommentDao> comments;
 
-    @OneToMany(mappedBy = "issue")
+    @OneToMany(mappedBy = "issue", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CollaborationDao> collaborators;
+
+    @OneToMany(mappedBy = "issue",cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore
+    private List<EventDao> eventsList;
 }
