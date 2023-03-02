@@ -1,9 +1,16 @@
-drop table users;
-drop table events;
-drop table issues;
-drop table permissions;
-drop table projects;
-drop table comments;
+create table notifications
+(
+    id           int unsigned auto_increment
+        primary key,
+    type         int        default 0 not null,
+    seen         tinyint(1) default 0 not null,
+    message      varchar(300)         null,
+    redirect_url varchar(300)         null,
+    sent_to      int unsigned         null,
+    created_at   datetime             not null,
+    updated_at   datetime             not null,
+    sent_by      int unsigned         null
+);
 
 create table users
 (
@@ -22,18 +29,6 @@ create table users
     constraint email
         unique (email)
 );
-
-create table comments
-(
-    user_id  int unsigned not null,
-    issue_id varchar(24)  not null,
-    comment  varchar(300) not null,
-    constraint comments_users_id_fk
-        foreign key (user_id) references users (id)
-);
-
-create index comments_issue_id_index
-    on comments (issue_id);
 
 create table projects
 (
@@ -68,6 +63,39 @@ create table issues
     constraint issues_projects_id_fk
         foreign key (project_id) references projects (id)
 );
+
+create table collaborations
+(
+    user_id    int unsigned not null,
+    issue_id   int unsigned not null,
+    created_at datetime     not null,
+    created_by int unsigned not null,
+    primary key (user_id, issue_id),
+    constraint collaborations_issues_id_fk
+        foreign key (issue_id) references issues (id),
+    constraint collaborations_users_id_fk
+        foreign key (user_id) references users (id),
+    constraint collaborations_users_id_fk2
+        foreign key (created_by) references users (id)
+);
+
+create table comments
+(
+    user_id    int unsigned not null,
+    issue_id   int unsigned not null,
+    comment    text         not null,
+    created_at datetime     not null,
+    updated_at datetime     not null,
+    id         int unsigned auto_increment
+        primary key,
+    constraint comments_issues_id_fk
+        foreign key (issue_id) references issues (id),
+    constraint comments_users_id_fk
+        foreign key (user_id) references users (id)
+);
+
+create index comments_issue_id_index
+    on comments (issue_id);
 
 create table events
 (
@@ -107,6 +135,9 @@ create table permissions
     user_id    int unsigned not null,
     project_id int unsigned not null,
     permission int unsigned not null,
+    created_at datetime     not null,
+    updated_at datetime     not null,
+    created_by int unsigned not null,
     constraint permissions_projects_id_fk
         foreign key (project_id) references projects (id),
     constraint permissions_users_id_fk

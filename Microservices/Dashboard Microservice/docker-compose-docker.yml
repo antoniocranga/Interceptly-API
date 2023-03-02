@@ -13,6 +13,7 @@ services:
       - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
     volumes:
       - mysqldb:/var/lib/mysql
+#      - ./db:/docker-entrypoint-initdb.d/
     expose:
       - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
     healthcheck:
