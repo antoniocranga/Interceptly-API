@@ -45,6 +45,9 @@ public abstract class Event {
             tags.putAll(RequestUtil.parseUserAgent(userAgent));
         } catch (Exception ignored) {
         }
+        if(body == null){
+            body = new HashMap<>();
+        }
         return EventDao.builder().
                 type(type).
                 message(message).

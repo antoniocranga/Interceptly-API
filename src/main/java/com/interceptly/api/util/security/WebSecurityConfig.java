@@ -49,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         configurer
                                 .antMatchers(
                                         "/error",
-                                        "/login", "/register", "/swagger-ui.html", "/resources/**", "/webjars/**", "/swagger-resources/**", "/v2/**", "/ws/**", "/"
+                                        "/login", "/register", "/swagger-ui.html", "/resources/**", "/webjars/**", "/swagger-resources/**", "/v2/**", "/ws/**", "/","/events","/stats/**"
                                 )
                                 .permitAll()
                                 .anyRequest()

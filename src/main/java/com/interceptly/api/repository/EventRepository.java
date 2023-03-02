@@ -35,4 +35,6 @@ public interface EventRepository extends JpaRepository<EventDao, UUID> {
     List<TagsOnly> countByEventsAndFormattedDate(Integer projectId, LocalDateTime start, LocalDateTime end);
 
     Page<EventDao> findAllByIssueId(Integer issueId, Pageable pageable);
+    List<EventDao> findAllByIssueId(Integer issueId);
+
 }

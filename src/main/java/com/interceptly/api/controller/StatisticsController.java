@@ -5,9 +5,11 @@ import com.interceptly.api.dao.IssueDao;
 import com.interceptly.api.dao.PermissionDao;
 import com.interceptly.api.dao.ProjectDao;
 import com.interceptly.api.dto.EventDto;
+import com.interceptly.api.dto.get.StatsGetDto;
 import com.interceptly.api.repository.EventRepository;
 import com.interceptly.api.repository.IssueRepository;
 import com.interceptly.api.repository.ProjectRepository;
+import com.interceptly.api.repository.UserRepository;
 import com.interceptly.api.util.PermissionUtil;
 import com.interceptly.api.util.enums.IssueStatusEnum;
 import com.interceptly.api.util.exports.ExcelDataExporter;
@@ -32,11 +34,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RequestMapping("/events")
+@RequestMapping("/stats")
 @RestController
 @Slf4j
 @CrossOrigin(origins = "*")
-public class EventController {
+public class StatisticsController {
     @Autowired
     EventRepository eventRepository;
 
@@ -46,29 +48,20 @@ public class EventController {
     @Autowired
     ProjectRepository projectRepository;
 
-    @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public String postEvent(HttpServletRequest request, @RequestBody @Valid EventDto event, @PathParam(value = "apiKey") @Size(min = 36, max = 36) String apiKey) {
-        Optional<ProjectDao> projectDao = projectRepository.findByApiKey(UUID.fromString(apiKey));
-        if (projectDao.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
-        }
-        event.setRequest(request);
-        Optional<IssueDao> issueDao = issueRepository.findByProjectIdAndTypeContainingIgnoreCaseAndMessageContainingIgnoreCase(projectDao.get().getId(), event.getType(), event.getMessage());
-        if (issueDao.isEmpty()) {
-            IssueDao newIssueDao = issueRepository.saveAndFlush(event.toIssueDao(projectDao.get().getId()));
-            event.setIssueId(newIssueDao.getId());
-        } else {
-            if (issueDao.get().getStatus() == IssueStatusEnum.RESOLVED) {
-                issueDao.get().setStatus(IssueStatusEnum.ACTIVE);
-            }
-            issueRepository.saveAndFlush(issueDao.get());
-            event.setIssueId(issueDao.get().getId());
-        }
+    @Autowired
+    UserRepository userRepository;
 
-        EventDao newEvent = event.toEventDao();
-        newEvent.setProjectId(projectDao.get().getId());
-        eventRepository.saveAndFlush(newEvent);
-        return "Event created.";
+    @GetMapping
+    public StatsGetDto getStats(){
+        Long eventsCount = eventRepository.count();
+        Long issuesCount = issueRepository.count();
+        Long projectsCount = projectRepository.count();
+        Long usersCount = userRepository.count();
+        return new StatsGetDto(
+                eventsCount,
+                projectsCount,
+                issuesCount,
+                usersCount
+        );
     }
 }
