@@ -1,10 +1,8 @@
 package com.interceptly.api.dto.post;
 
 import com.interceptly.api.util.enums.PermissionEnum;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
-
 
 @Data
 public class PermissionPostDto {

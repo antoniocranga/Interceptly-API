@@ -10,6 +10,8 @@ import com.interceptly.api.repository.PermissionRepository;
 import com.interceptly.api.repository.UserRepository;
 import com.interceptly.api.util.PermissionUtil;
 import com.interceptly.api.util.enums.PermissionEnum;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +19,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 

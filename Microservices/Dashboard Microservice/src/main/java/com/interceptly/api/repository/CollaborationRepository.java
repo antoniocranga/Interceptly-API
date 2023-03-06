@@ -1,9 +1,9 @@
 package com.interceptly.api.repository;
 
 import com.interceptly.api.dao.CollaborationDao;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.transaction.Transactional;
 import java.util.Optional;
 
 public interface CollaborationRepository extends JpaRepository<CollaborationDao, Integer> {

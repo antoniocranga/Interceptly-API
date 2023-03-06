@@ -1,8 +1,7 @@
 package com.interceptly.api.dto.post;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 public class IssuePostDto {

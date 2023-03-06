@@ -3,6 +3,8 @@ package com.interceptly.api.controller;
 import com.interceptly.api.model.ApiErrorModel;
 import com.interceptly.api.util.ResponseEntityBuilder;
 import com.interceptly.api.util.exceptions.GeneralException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,8 +20,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,21 +43,21 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return ResponseEntityBuilder.build(error);
     }
 
-    @Override
-    public ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, WebRequest request) {
-        List<String> errors = new ArrayList<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String errorMessage = error.getDefaultMessage();
-            errors.add(errorMessage);
-        });
-        ApiErrorModel error = new ApiErrorModel(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST,
-                errors.toString()
-        );
-        return ResponseEntityBuilder.build(error);
-    }
+//    @Override
+//    public ResponseEntity<Object> handleMethodArgumentNotValid(
+//            MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, WebRequest request) {
+//        List<String> errors = new ArrayList<>();
+//        ex.getBindingResult().getAllErrors().forEach((error) -> {
+//            String errorMessage = error.getDefaultMessage();
+//            errors.add(errorMessage);
+//        });
+//        ApiErrorModel error = new ApiErrorModel(
+//                LocalDateTime.now(),
+//                HttpStatus.BAD_REQUEST,
+//                errors.toString()
+//        );
+//        return ResponseEntityBuilder.build(error);
+//    }
 
     @ExceptionHandler({GeneralException.class})
     public ResponseEntity<Object> handleGeneralException(Exception ex) {
@@ -94,16 +94,16 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return ResponseEntityBuilder.build(error);
     }
 
-    @ExceptionHandler({ResponseStatusException.class})
-    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-        log.error(ex.getMessage());
-        ApiErrorModel error = new ApiErrorModel(
-                LocalDateTime.now(),
-                ex.getStatus(),
-                ex.getReason()
-        );
-        return ResponseEntityBuilder.build(error);
-    }
+//    @ExceptionHandler({ResponseStatusException.class})
+//    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
+//        log.error(ex.getMessage());
+//        ApiErrorModel error = new ApiErrorModel(
+//                LocalDateTime.now(),
+//                ex.,
+//                ex.getReason()
+//        );
+//        return ResponseEntityBuilder.build(error);
+//    }
 
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {

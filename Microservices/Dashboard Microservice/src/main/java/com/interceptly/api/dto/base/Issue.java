@@ -2,10 +2,9 @@ package com.interceptly.api.dto.base;
 
 import com.interceptly.api.dao.IssueDao;
 import com.interceptly.api.util.enums.IssueStatusEnum;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 @EqualsAndHashCode

@@ -2,14 +2,15 @@ package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.util.ProviderEnum;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity

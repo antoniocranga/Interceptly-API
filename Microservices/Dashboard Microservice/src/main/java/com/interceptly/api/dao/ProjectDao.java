@@ -1,14 +1,15 @@
 package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.type.SqlTypes;
+
 import java.util.UUID;
 
 @Entity
@@ -34,9 +35,7 @@ public class ProjectDao extends BaseEntity {
 
     @Column(name = "api_key", unique = true, columnDefinition = "VARCHAR(36)", nullable = false)
     @NotNull
-//    @GeneratedValue(generator = "uuid2")
-//    @GenericGenerator(name="uuid2", strategy = "uuid2")
-    @Type(type = "uuid-char")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private UUID apiKey;
 
     @Column(name = "owner", columnDefinition = "INT UNSIGNED", nullable = false)

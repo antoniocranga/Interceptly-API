@@ -2,13 +2,14 @@ package com.interceptly.api.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.interceptly.api.util.enums.IssueStatusEnum;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.domain.Page;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import java.util.List;
 @Table(name = "issues")
 public class IssueDao extends BaseEntity {
 
-    @NonNull
+    @NotNull
     @Size(max = 65535)
     @Column(name = "title", nullable = false, columnDefinition = "TEXT", length = 65535)
     private String title;

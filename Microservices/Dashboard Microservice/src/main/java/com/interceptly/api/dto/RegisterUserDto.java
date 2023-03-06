@@ -1,10 +1,9 @@
 package com.interceptly.api.dto;
 
 import com.interceptly.api.util.ProviderEnum;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 
 @Data
 public class RegisterUserDto {

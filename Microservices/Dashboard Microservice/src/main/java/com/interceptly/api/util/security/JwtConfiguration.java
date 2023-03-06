@@ -74,7 +74,6 @@ public class JwtConfiguration {
 
         throw new IllegalArgumentException("Unable to load RSA public key");
     }
-
     @Bean
     public JwtDecoder jwtDecoder(RSAPublicKey rsaPublicKey) {
         return NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
