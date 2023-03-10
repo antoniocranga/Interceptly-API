@@ -1,0 +1,145 @@
+version: '3.8'
+services:
+  mysqldb:
+    container_name: mysqldb
+    restart: unless-stopped
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
+    volumes:
+      - mysqldb:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    expose:
+      - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
+    healthcheck:
+      test: "mysql -u ${MYSQL_USER} -p$${MYSQL_PASSWORD} -e \"show databases;\""
+  eureka-server:
+    image: eureka-server
+    container_name: eureka-server
+    # restart: on-failure
+    build:
+      context: Eureka Server
+      dockerfile: Dockerfile
+    ports:
+      - ${EUREKA_SERVER_PORT}:${EUREKA_DOCKER_PORT}
+    expose:
+      - ${EUREKA_SERVER_PORT}
+    environment:
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      SPRING_APPLICATION_NAME: "${EUREKA_SPRING_APPLICATION_NAME}"
+      SERVER_PORT: "${EUREKA_SERVER_PORT}"
+    healthcheck:
+      test: ["CMD", "curl", "-f" , "${EUREKA_URL}/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      # start_period: 30s
+  cloud-gateway:
+    image: cloud-gateway
+    container_name: cloud-gateway
+    # restart: on-failure
+    build:
+      context: Spring Cloud Gateway
+      dockerfile: Dockerfile
+    ports:
+      - ${CLOUD_GATEWAY_SERVER_PORT}:${CLOUD_GATEWAY_DOCKER_PORT}
+    expose:
+      - ${CLOUD_GATEWAY_SERVER_PORT}
+    environment:
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      SPRING_APPLICATION_NAME: "${CLOUD_GATEWAY_SPRING_APPLICATION_NAME}"
+      APP_SECURITY_KEYSTORE_LOCATION: "${KEYSTORE_LOCATION}"
+      APP_SECURITY_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD}"
+      APP_SECURITY_KEY_ALIAS: "${KEY_ALIAS}"
+      APP_SECURITY_PRIVATE_KEY_PASSPHRASE: "${PRIVATE_KEY_PASSPHRASE}"
+      SERVER_PORT: "${CLOUD_GATEWAY_SERVER_PORT}"
+      EUREKA_URI: "${EUREKA_URI}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS}"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+  auth-microservice:
+    image: auth-microservice
+    container_name: auth-microservice
+    # restart: on-failure
+    build:
+      context: Microservices/Auth Microservice
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      SPRING_APPLICATION_NAME: "${AUTH_MICROSERVICE_SPRING_APPLICATION_NAME}"
+      APP_SECURITY_KEYSTORE_LOCATION: "${KEYSTORE_LOCATION}"
+      APP_SECURITY_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD}"
+      APP_SECURITY_KEY_ALIAS: "${KEY_ALIAS}"
+      APP_SECURITY_PRIVATE_KEY_PASSPHRASE: "${PRIVATE_KEY_PASSPHRASE}"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://${MYSQL_HOST}:${MYSQL_DOCKER_PORT}/${MYSQL_DATABASE}?useSSL=false"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      EUREKA_URI: "${EUREKA_URI}"
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    external_links:
+      - mysqldb
+  events-microservice:
+    image: events-microservice
+    container_name: events-microservice
+    # restart: on-failure
+    build:
+      context: Microservices/Events Microservice
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      SPRING_APPLICATION_NAME: "${EVENTS_MICROSERVICE_SPRING_APPLICATION_NAME}"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://${MYSQL_HOST}:${MYSQL_DOCKER_PORT}/${MYSQL_DATABASE}?useSSL=false"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      APP_SECURITY_KEYSTORE_LOCATION: "${KEYSTORE_LOCATION}"
+      APP_SECURITY_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD}"
+      APP_SECURITY_KEY_ALIAS: "${KEY_ALIAS}"
+      APP_SECURITY_PRIVATE_KEY_PASSPHRASE: "${PRIVATE_KEY_PASSPHRASE}"
+      EUREKA_URI: "${EUREKA_URI}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS}"
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    external_links:
+      - mysqldb
+  dashboard-microservice:
+    image: dashboard-microservice
+    container_name: dashboard-microservice
+    # restart: on-failure
+    build:
+      context: Microservices/Dashboard Microservice
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      SPRING_APPLICATION_NAME: "${DASHBOARD_MICROSERVICE_SPRING_APPLICATION_NAME}"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://${MYSQL_HOST}:${MYSQL_DOCKER_PORT}/${MYSQL_DATABASE}?useSSL=false"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      APP_SECURITY_KEYSTORE_LOCATION: "${KEYSTORE_LOCATION}"
+      APP_SECURITY_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD}"
+      APP_SECURITY_KEY_ALIAS: "${KEY_ALIAS}"
+      APP_SECURITY_PRIVATE_KEY_PASSPHRASE: "${PRIVATE_KEY_PASSPHRASE}"
+      EUREKA_URI: "${EUREKA_URI}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS}"
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    external_links:
+      - mysqldb
+volumes:
+  mysqldb:
+    driver: local

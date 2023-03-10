@@ -24,7 +24,6 @@ import java.util.Optional;
 @RequestMapping("/comments")
 @RestController
 @Slf4j
-@CrossOrigin(origins = "*")
 public class CommentController {
     @Autowired
     CommentRepository commentRepository;

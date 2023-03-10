@@ -25,7 +25,6 @@ import java.util.Optional;
 @RequestMapping("/collaborations")
 @RestController
 @Slf4j
-@CrossOrigin(origins = "*")
 public class CollaborationController {
 
     @Autowired

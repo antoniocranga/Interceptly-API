@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stats")
 @RestController
 @Slf4j
-@CrossOrigin(origins = "*")
 public class StatisticsController {
     @Autowired
     EventRepository eventRepository;

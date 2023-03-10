@@ -52,7 +52,6 @@ import java.util.*;
 @RequestMapping("/projects")
 @RestController
 @Slf4j
-@CrossOrigin(origins = "*")
 public class ProjectController {
     @Autowired
     PermissionRepository permissionRepository;
@@ -86,7 +85,6 @@ public class ProjectController {
         projectDto.setOwner(userId);
         ProjectDao projectDao = projectRepository.saveAndFlush(projectDto.toProjectDao());
         PermissionDao permissionDao = PermissionDao.builder().id(new UserProjectComposite(userId, projectDao.getId())).createdBy(userId).project(projectDao).permission(PermissionEnum.OWNER).build();
-        log.debug(permissionDao.toString());
         return permissionRepository.saveAndFlush(permissionDao);
     }
 

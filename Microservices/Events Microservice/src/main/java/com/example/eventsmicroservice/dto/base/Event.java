@@ -7,7 +7,6 @@ import com.example.eventsmicroservice.utils.RequestUtil;
 import com.example.eventsmicroservice.utils.enums.IssueStatusEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.shaded.gson.JsonObject;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;

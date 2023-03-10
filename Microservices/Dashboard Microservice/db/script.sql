@@ -1,4 +1,4 @@
-create table notifications
+create table if not exists notifications
 (
     id           int unsigned auto_increment
         primary key,
@@ -12,7 +12,7 @@ create table notifications
     sent_by      int unsigned         null
 );
 
-create table users
+create table if not exists users
 (
     id         int unsigned auto_increment
         primary key,
@@ -30,7 +30,7 @@ create table users
         unique (email)
 );
 
-create table projects
+create table if not exists projects
 (
     id          int unsigned auto_increment
         primary key,
@@ -47,7 +47,7 @@ create table projects
         foreign key (owner) references users (id)
 );
 
-create table issues
+create table if not exists issues
 (
     id            int unsigned auto_increment
         primary key,
@@ -64,7 +64,7 @@ create table issues
         foreign key (project_id) references projects (id)
 );
 
-create table collaborations
+create table if not exists collaborations
 (
     user_id    int unsigned not null,
     issue_id   int unsigned not null,
@@ -79,7 +79,7 @@ create table collaborations
         foreign key (created_by) references users (id)
 );
 
-create table comments
+create table if not exists comments
 (
     user_id    int unsigned not null,
     issue_id   int unsigned not null,
@@ -97,7 +97,7 @@ create table comments
 create index comments_issue_id_index
     on comments (issue_id);
 
-create table events
+create table if not exists events
 (
     id                    varchar(36)  not null
         primary key,
@@ -130,7 +130,7 @@ create table events
 create index issues_project_id_index
     on issues (project_id);
 
-create table permissions
+create table if not exists permissions
 (
     user_id    int unsigned not null,
     project_id int unsigned not null,

@@ -31,18 +31,20 @@ public class AuthGatewayFilterFactory extends
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
+            log.info("Gateway filter");
+            log.info(exchange.getRequest().getPath().toString());
             ServerHttpRequest request = exchange.getRequest();
-            if(routerValidator.isSecured.test(request))
-            {
-                if(this.isAuthMissing(request)){
+            if(routerValidator.isSecured.test(request)) {
+                if (this.isAuthMissing(request)) {
                     return this.onError(exchange, "Authorization header is missing", HttpStatus.UNAUTHORIZED);
                 }
                 final String token = this.getAuthHeader(request);
                 final boolean isTokenValid = jwtTokenUtil.validateToken(token.split(" ")[1]);
-                if(!isTokenValid){
+                if (!isTokenValid) {
                     return this.onError(exchange, "Authorization token is not valid", HttpStatus.UNAUTHORIZED);
                 }
             }
+            log.info("Filter not applied.");
                 return chain.filter(exchange);
         });
     }

@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @RestController
 @Slf4j
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class EventController {
     @Autowired
     EventRepository eventRepository;
@@ -40,7 +40,6 @@ public class EventController {
     public String postEvent(HttpServletRequest request, @RequestBody @Valid EventDto event, @PathParam(value = "apiKey") @Size(min = 36, max = 36) String apiKey) throws JsonProcessingException {
         Optional<ProjectDao> projectDao = projectRepository.findByApiKey(UUID.fromString(apiKey));
         if (projectDao.isEmpty()) {
-            log.error(apiKey);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, null);
         }
         event.setRequest(request);

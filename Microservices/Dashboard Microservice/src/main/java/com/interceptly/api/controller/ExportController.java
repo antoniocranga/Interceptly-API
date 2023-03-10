@@ -21,7 +21,6 @@ import java.util.List;
 @RequestMapping("/export")
 @RestController
 @Slf4j
-@CrossOrigin(origins = "*")
 public class ExportController {
 
     @Autowired
