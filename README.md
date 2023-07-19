@@ -35,7 +35,7 @@ download docker
 **Step 3: Start the application**
 Start the application by running the following bash script:
 ```
-./deploy-docker.sh
+sh deploy-docker.sh
 ```
 
 ## Support
